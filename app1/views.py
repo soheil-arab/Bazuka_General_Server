@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from django.http import JsonResponse
 from app1.models import User,Card,CardType
 import json
-
+from random import *
 # from Crypto.Signature import PKCS1_v1_5
 # from Crypto.Hash import SHA256
 # from Crypto.PublicKey import RSA
@@ -13,7 +13,7 @@ import json
 from datetime import datetime
 from leaderboard.leaderboard import Leaderboard
 from django.core.exceptions import ObjectDoesNotExist
-import pickle
+# import pickle
 
 
 # @api_view(['POST'])
@@ -51,10 +51,8 @@ def deck(request):
             deck_order = {'deck_order': user.deck1}
             return JsonResponse(deck_order, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
-            print('object with '+userID+' does not exist')
             return Response('user not found', status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'POST':
-        print('salam')
         data = request.POST
         userID = data['userID']
         deck_str = data['deck']
@@ -67,7 +65,6 @@ def deck(request):
             return JsonResponse({}, status=status.HTTP_200_OK)
 
         except ObjectDoesNotExist:
-            print('object with '+userID+' does not exist')
             return JsonResponse({'error':'user not found'}, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -85,7 +82,7 @@ def card(request):
             card_list.append(card_element.cardType.Cardid)
         responseData = {
             'userID': userID,
-            'cardList': json.dumps(card_list,separators=(',', ':'))
+            'cardList': json.dumps(card_list, separators=(',', ':'))
         }
         return JsonResponse(responseData, status=status.HTTP_200_OK)
 
@@ -130,43 +127,51 @@ def update_username(request):
 
     if request.method == 'POST':
         data = request.POST
-        userID = data['userID']
-        deviceID = data['deviceID']
-        username = data['username']
-        user, created = User.objects.get_or_create(idDevice=deviceID)
+        userID = data.get('userID', default=None)
+        username = data.get('username', default=None)
+        user = None
 
-        if created:
-            userID = user.idUser
+        if userID is not None:
+            user = User.objects.get(idUser=userID)
 
         user.username = username
         user.save()
 
         responseData = {
             'userID': userID,
-            'deviceID': deviceID,
+            'deviceID': user.idDevice,
             'username': username
         }
         return JsonResponse(responseData, status=status.HTTP_200_OK)
+
 
 @api_view(['GET'])
 def get_updates(request):
 
     if request.method == 'GET':
         data = request.GET
-        deviceID = data['deviceID']
-        user, created = User.objects.get_or_create(idDevice=deviceID)
+        deviceID = data.get('deviceID', default=None)
+        userID = data.get('userID', default=None)
+        user = None
+        created = None
+        if userID is None:
+            user, created = User.objects.get_or_create(idDevice=deviceID)
+        else:
+            user = User.objects.get(idUser=userID)
         userID = user.idUser
         username = user.username
 
         card_list = []
         for card_element in user.cards.all():
             card_list.append(card_element.cardType.Cardid)
-        responseData ={
-                'userID': userID,
-                'deviceID': deviceID,
-                'username': username,
-                'cardList': card_list
-            }
+        responseData = {
+            'userID': userID,
+            'username': username,
+            'deviceID': deviceID,
+            'cardList': card_list,
+            'deck1': user.deck1,
+            'trophy': user.trophy
+        }
         return JsonResponse(responseData, status=status.HTTP_200_OK)
 
 
@@ -174,8 +179,16 @@ def get_updates(request):
 def update_match_result(request):
     if request.method == 'POST':
         data = request.POST
-        userID = [data['user1ID'], data['user2ID']]
-        winner = data['winner']
+        user1ID = data.get('user1ID', default=None)
+        user2ID = data.get('user2ID', default=None)
+        if user1ID is None or user2ID is None:
+            return Response('invalid userID', status=status.HTTP_400_BAD_REQUEST)
+        userID = [user1ID, user2ID]
+        winner = data.get('winner', default=None)
+        turn = data.get('turn', default=None)
+        if winner is None or turn is None :
+            return Response('invalid userID', status=status.HTTP_400_BAD_REQUEST)
+
         # time = data['time']
         # signb64 = data['b64sign']
 
@@ -201,10 +214,12 @@ def update_match_result(request):
         user2 = User.objects.get(idUser=userID[1 - int(winner)])
 
         user1.winCount += 1
-        user1.trophy += calculate_trophy(user1.trophy, user1.level, True)
+        u1diff = calculate_trophy(user1.trophy, user1.level, True, turn)
+        user1.trophy += u1diff
 
         user2.loseCount += 1
-        user2.trophy += calculate_trophy(user2.trophy, user2.level, False)
+        u2diff = calculate_trophy(user2.trophy, user2.level, False, turn)
+        user2.trophy += u2diff
 
         user1.save()
         user2.save()
@@ -212,19 +227,20 @@ def update_match_result(request):
         highscore_lb.delete_leaderboard()
         highscore_lb.rank_member(user1.username, user1.trophy, user1.idUser)
         highscore_lb.rank_member(user2.username, user2.trophy, user2.idUser)
-        print(highscore_lb.top(10))
 
         responseData = {
-                'user1': {
-                    'userID': user1.idUser,
-                    'trophy': user1.trophy
-                },
-                'user2': {
-                    'userID': user2.idUser,
-                    'trophy': user2.trophy
-                },
-                'winner': winner
-            }
+            'user1': {
+                'userID': user1.idUser,
+                'trophy_sum': user1.trophy,
+                'trophy_diff': u1diff
+            },
+            'user2': {
+                'userID': user2.idUser,
+                'trophy_sum': user2.trophy,
+                'trophy_diff': u2diff
+            },
+            'winner': winner
+        }
         return JsonResponse(responseData, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
@@ -235,15 +251,25 @@ def get_leaders(request):
         # deviceID = data['deviceID']
         highscore_lb = Leaderboard('TheTree')
         top_100 = highscore_lb.top(100)
-        print(top_100)
         responseData = {
                 "top": top_100
             }
         return JsonResponse(responseData, status=status.HTTP_200_OK,encoder=MyEncoder)
 
 
-def calculate_trophy(user_trophy, user_level, is_winner):
-    return 10 if is_winner else -10
+def calculate_trophy(user_trophy, user_level, is_winner, turn):
+    if is_winner:
+        if turn < 10:
+            return randint(15, 20)
+        elif 10 <= turn < 20:
+            return randint(25, 30)
+        elif 20 <= turn < 30:
+            return randint(35, 40)
+        else:
+            return 40
+    if user_trophy <= 15:
+        return -user_trophy
+    return -15
 
 
 class MyEncoder(json.JSONEncoder):
