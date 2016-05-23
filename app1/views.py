@@ -145,6 +145,28 @@ def update_username(request):
         return JsonResponse(responseData, status=status.HTTP_200_OK)
 
 
+@api_view(['POST'])
+def bug_report(request):
+    if request.method == 'POST':
+        data = request.POST
+        userID = data.get('userID', default=None)
+        deviceID = data.get('deviceID', default=None)
+        title = data.get('title', default=None)
+        text = data.get('text', default=None)
+        now = datetime.now().__str__()
+
+        user = None
+        if deviceID is not None:
+            user = User.objects.get(idDevice=deviceID)
+        if user is None:
+            return Response('invalid ', status=status.HTTP_400_BAD_REQUEST)
+        if user.idUser != userID:
+            return Response('invalid ', status=status.HTTP_400_BAD_REQUEST)
+        file = open('./bug_report/user_'+userID+'_time_'+now, 'wt+')
+        file.write(title+'\n'+text)
+        return JsonResponse('Thanks', status=status.HTTP_200_OK)
+
+
 @api_view(['GET'])
 def get_updates(request):
 
@@ -223,7 +245,7 @@ def update_match_result(request):
 
         user1.save()
         user2.save()
-        highscore_lb = Leaderboard('TheTree')
+        highscore_lb = Leaderboard('Bazuka_V1')
         highscore_lb.delete_leaderboard()
         highscore_lb.rank_member(user1.username, user1.trophy, user1.idUser)
         highscore_lb.rank_member(user2.username, user2.trophy, user2.idUser)
@@ -252,8 +274,8 @@ def get_leaders(request):
         highscore_lb = Leaderboard('TheTree')
         top_100 = highscore_lb.top(100)
         responseData = {
-                "top": top_100
-            }
+            "top": top_100
+        }
         return JsonResponse(responseData, status=status.HTTP_200_OK,encoder=MyEncoder)
 
 

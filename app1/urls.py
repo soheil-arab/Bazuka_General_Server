@@ -12,4 +12,5 @@ urlpatterns = [
     url(r'get_leaders$', views.get_leaders),
     url(r'deck$', views.deck),
     url(r'card$', views.card),
+    url(r'bug_report$', views.bug_report),
 ]
