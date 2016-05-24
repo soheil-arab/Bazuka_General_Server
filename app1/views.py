@@ -203,6 +203,7 @@ def update_match_result(request):
         data = request.POST
         user1ID = data.get('user1ID', default=None)
         user2ID = data.get('user2ID', default=None)
+        roomID = data.get('roomID', default=None)
         if user1ID is None or user2ID is None:
             return Response('invalid userID', status=status.HTTP_400_BAD_REQUEST)
         userID = [user1ID, user2ID]
@@ -261,7 +262,9 @@ def update_match_result(request):
                 'trophy_sum': user2.trophy,
                 'trophy_diff': u2diff
             },
-            'winner': winner
+            'winner': winner,
+            'roomID': roomID
+
         }
         return JsonResponse(responseData, status=status.HTTP_200_OK)
 
