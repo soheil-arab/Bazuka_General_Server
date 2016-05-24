@@ -115,7 +115,7 @@ def match_request(request):
                 'userID': userID,
                 'deviceID': deviceID,
                 'time': now,
-                'serverIP': 'alpha.hexino.ir',
+                'serverIP': 'sl.hexino.ir',
                 'port': '16160',
                 'signature': signb64
             }
