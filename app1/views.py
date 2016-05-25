@@ -160,7 +160,7 @@ def bug_report(request):
             user = User.objects.get(idDevice=deviceID)
         if user is None:
             return Response('invalid ', status=status.HTTP_400_BAD_REQUEST)
-        if user.idUser != userID:
+        if str(user.idUser) != userID:
             return Response('invalid ', status=status.HTTP_400_BAD_REQUEST)
         file = open('/home/soheil/hexino.ir/Bazuka_General_Server/bug_report/user_'+userID+'_time_'+now, 'wt+')
         file.write(title+'\n'+text)
