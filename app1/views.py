@@ -162,7 +162,7 @@ def bug_report(request):
             return Response('invalid ', status=status.HTTP_400_BAD_REQUEST)
         if user.idUser != userID:
             return Response('invalid ', status=status.HTTP_400_BAD_REQUEST)
-        file = open('./bug_report/user_'+userID+'_time_'+now, 'wt+')
+        file = open('/home/soheil/hexino.ir/Bazuka_General_Server/bug_report/user_'+userID+'_time_'+now, 'wt+')
         file.write(title+'\n'+text)
         file.close()
         return JsonResponse({}, status=status.HTTP_200_OK)
