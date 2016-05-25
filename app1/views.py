@@ -165,7 +165,7 @@ def bug_report(request):
         file = open('./bug_report/user_'+userID+'_time_'+now, 'wt+')
         file.write(title+'\n'+text)
         file.close()
-        return JsonResponse('Thanks', status=status.HTTP_200_OK)
+        return JsonResponse({}, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
