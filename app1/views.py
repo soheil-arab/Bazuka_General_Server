@@ -275,7 +275,7 @@ def get_leaders(request):
         # data = request.data
         # userID = data['userID']
         # deviceID = data['deviceID']
-        highscore_lb = Leaderboard('TheTree')
+        highscore_lb = Leaderboard('Bazuka_V1')
         top_100 = highscore_lb.top(100)
         responseData = {
             "top": top_100
