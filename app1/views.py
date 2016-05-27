@@ -238,7 +238,7 @@ def update_match_result(request):
         user2 = User.objects.get(idUser=userID[1 - int(winner)])
 
         user1.winCount += 1
-        u1diff = calculate_trophy(user1.trophy, user1.level, True, turn)
+        u1diff = calculate_trophy(user1.trophy, user1.level, True, int(turn))
         user1.trophy += u1diff
 
         user2.loseCount += 1
