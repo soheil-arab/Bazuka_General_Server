@@ -127,7 +127,7 @@ def update_username(request):
 
     if request.method == 'POST':
         data = request.POST
-        userID = num(data.get('userID', default=None))
+        userID = (data.get('userID', default=None))
         username = data.get('username', default=None)
         user = None
 
@@ -174,7 +174,7 @@ def get_updates(request):
     if request.method == 'GET':
         data = request.GET
         deviceID = data.get('deviceID', default=None)
-        userID = num(data.get('userID', default=None))
+        userID = (data.get('userID', default=None))
         user = None
         created = None
         if userID is None:
