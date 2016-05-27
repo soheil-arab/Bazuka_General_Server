@@ -54,7 +54,7 @@ def deck(request):
             return Response('user not found', status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'POST':
         data = request.POST
-        userID = data['userID']
+        userID = num(data['userID'])
         deck_str = data['deck']
         deck_order = json.loads(deck_str)
         try:
@@ -73,7 +73,7 @@ def card(request):
 
     if request.method == 'GET':
         data = request.GET
-        userID = data['userID']
+        userID = num(data['userID'])
         cards = Card.objects.filter(user=userID)
         if len(cards) < 1:
             return Response('no card!', status=status.HTTP_400_BAD_REQUEST)
@@ -127,7 +127,7 @@ def update_username(request):
 
     if request.method == 'POST':
         data = request.POST
-        userID = data.get('userID', default=None)
+        userID = num(data.get('userID', default=None))
         username = data.get('username', default=None)
         user = None
 
@@ -174,7 +174,7 @@ def get_updates(request):
     if request.method == 'GET':
         data = request.GET
         deviceID = data.get('deviceID', default=None)
-        userID = data.get('userID', default=None)
+        userID = num(data.get('userID', default=None))
         user = None
         created = None
         if userID is None:
@@ -303,3 +303,9 @@ class MyEncoder(json.JSONEncoder):
        if isinstance(obj, bytes):
           return obj.decode()
        return json.JSONEncoder.default(self, obj)
+
+def num(s):
+    try:
+        return int(s)
+    except ValueError:
+        return None;
