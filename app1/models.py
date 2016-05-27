@@ -1,5 +1,13 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
+import random
+
+def default_deck_gen():
+    return random.choice([
+        [0, 3, 8, 11, 12, 13, 16, 18],
+        [2, 3, 6, 7, 12, 14, 17, 18],
+        [0, 1, 2, 4, 9, 15, 16, 19]
+    ])
 
 class CardType(models.Model):
     idCardType = models.AutoField(primary_key=True)
@@ -19,7 +27,7 @@ class User(models.Model):
     trophy = models.IntegerField(default=0)
     winCount = models.IntegerField(default=0)
     loseCount = models.IntegerField(default=0)
-    deck1 = ArrayField(models.IntegerField(default=-1), size=8, null=True, blank=True)
+    deck1 = ArrayField(models.IntegerField(), size=8, null=True, blank=True, default=default_deck_gen)
     xp = models.IntegerField(default=0)
     level = models.IntegerField(default=0)
 
