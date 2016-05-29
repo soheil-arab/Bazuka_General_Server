@@ -4,9 +4,9 @@ import random
 
 def default_deck_gen():
     return random.choice([
-        [5, 3, 8, 11, 12, 13, 16, 18],
-        [2, 3, 6, 7, 12, 14, 17, 18],
-        [5, 1, 2, 3, 9, 15, 16, 19]
+        [15, 3, 5, 7, 9, 2, 16, 12],
+        [6, 17, 8, 1, 11, 14, 16, 18],
+        [12, 17, 15, 5, 19, 13, 6, 14]
     ])
 
 class CardType(models.Model):
