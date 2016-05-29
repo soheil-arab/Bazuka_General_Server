@@ -243,14 +243,25 @@ def update_match_result(request):
 
         user1 = User.objects.get(idUser=userID[int(winner)])
         user2 = User.objects.get(idUser=userID[1 - int(winner)])
-
-        user1.winCount += 1
-        u1diff = calculate_trophy(user1.trophy, user1.level, True, int(turn), scoreDiff)
-        user1.trophy += u1diff
-
-        user2.loseCount += 1
-        u2diff = calculate_trophy(user2.trophy, user2.level, False, int(turn), scoreDiff)
-        user2.trophy += u2diff
+        if int(user1Score) == -1 or int(user2Score) == -1:
+            user1.winCount += 1
+            u1diff = 20
+            user1.trophy += u1diff
+    
+            user2.loseCount += 1
+            u2diff = -10
+            if user2.trophy < 10:
+                u2diff = -user2.trophy
+            user2.trophy += u2diff
+            
+        else:
+            user1.winCount += 1
+            u1diff = calculate_trophy(user1.trophy, user1.level, True, int(turn), scoreDiff)
+            user1.trophy += u1diff
+    
+            user2.loseCount += 1
+            u2diff = calculate_trophy(user2.trophy, user2.level, False, int(turn), scoreDiff)
+            user2.trophy += u2diff
 
         user1.save()
         user2.save()
