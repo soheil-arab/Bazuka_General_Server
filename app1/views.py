@@ -208,6 +208,9 @@ def update_match_result(request):
         user1ID = data.get('user1ID', default=None)
         user2ID = data.get('user2ID', default=None)
         roomID = data.get('roomID', default=None)
+        user1Score = data.get('user1Score', default=None)
+        user2Score = data.get('user2Score', default=None)
+        scoreDiff = abs(user1Score - user2Score)
         if user1ID is None or user2ID is None:
             return Response('invalid userID', status=status.HTTP_400_BAD_REQUEST)
         userID = [user1ID, user2ID]
@@ -241,11 +244,11 @@ def update_match_result(request):
         user2 = User.objects.get(idUser=userID[1 - int(winner)])
 
         user1.winCount += 1
-        u1diff = calculate_trophy(user1.trophy, user1.level, True, int(turn))
+        u1diff = calculate_trophy(user1.trophy, user1.level, True, int(turn), scoreDiff)
         user1.trophy += u1diff
 
         user2.loseCount += 1
-        u2diff = calculate_trophy(user2.trophy, user2.level, False, turn)
+        u2diff = calculate_trophy(user2.trophy, user2.level, False, turn, scoreDiff)
         user2.trophy += u2diff
 
         user1.save()
@@ -285,19 +288,32 @@ def get_leaders(request):
         return JsonResponse(responseData, status=status.HTTP_200_OK,encoder=MyEncoder)
 
 
-def calculate_trophy(user_trophy, user_level, is_winner, turn):
-    if is_winner:
-        if turn < 10:
-            return randint(15, 20)
-        elif 10 <= turn < 20:
-            return randint(25, 30)
-        elif 20 <= turn < 30:
-            return randint(35, 40)
-        else:
-            return 40
-    if user_trophy <= 15:
-        return -user_trophy
-    return -15
+def calculate_trophy(user_trophy, user_level, is_winner, turn, scoreDiff):
+    if turn > 20:
+        if is_winner:
+            return randint(30,40)
+        if user_trophy <= 15:
+            return -user_trophy
+        return -15 
+    else if scoreDiff == 1:
+        if is_winner:
+            return randint(35,40)
+        if user_trophy <= 20:
+            return -user_trophy
+        return -20 
+    else if scoreDiff == 2:
+        if is_winner:
+            return randint(25,40)
+        if user_trophy <= 15:
+            return -user_trophy
+        return -15 
+    else if scoreDiff == 3:
+        if is_winner:
+            return randint(20,30)
+        if user_trophy <= 10:
+            return -user_trophy
+        return -10 
+
 
 
 class MyEncoder(json.JSONEncoder):
