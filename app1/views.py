@@ -249,7 +249,7 @@ def update_match_result(request):
         user1.trophy += u1diff
 
         user2.loseCount += 1
-        u2diff = calculate_trophy(user2.trophy, user2.level, False, turn, scoreDiff)
+        u2diff = calculate_trophy(user2.trophy, user2.level, False, int(turn), scoreDiff)
         user2.trophy += u2diff
 
         user1.save()
