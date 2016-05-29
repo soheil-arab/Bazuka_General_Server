@@ -290,7 +290,7 @@ def get_leaders(request):
 
 
 def calculate_trophy(user_trophy, user_level, is_winner, turn, scoreDiff):
-    if turn > 20:
+    if int(turn) > 20:
         if is_winner:
             return randint(30,40)
         if user_trophy <= 15:
