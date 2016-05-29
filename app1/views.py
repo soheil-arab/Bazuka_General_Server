@@ -211,7 +211,7 @@ def update_match_result(request):
         roomID = data.get('roomID', default=None)
         user1Score = data.get('user1Score', default=None)
         user2Score = data.get('user2Score', default=None)
-        scoreDiff = abs(user1Score - user2Score)
+        scoreDiff = abs(int(user1Score) - int(user2Score))
         if user1ID is None or user2ID is None:
             return Response('invalid userID', status=status.HTTP_400_BAD_REQUEST)
         userID = [user1ID, user2ID]
