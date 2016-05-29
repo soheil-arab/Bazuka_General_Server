@@ -181,6 +181,9 @@ def get_updates(request):
             user, created = User.objects.get_or_create(idDevice=deviceID)
         else:
             user = User.objects.get(idUser=userID)
+        if created:
+            highscore_lb = Leaderboard('Bazuka_V1')
+            highscore_lb.rank_member(user.username, user.trophy, user.idUser)
         userID = user.idUser
         username = user.username
 
@@ -248,7 +251,6 @@ def update_match_result(request):
         user1.save()
         user2.save()
         highscore_lb = Leaderboard('Bazuka_V1')
-        highscore_lb.delete_leaderboard()
         highscore_lb.rank_member(user1.username, user1.trophy, user1.idUser)
         highscore_lb.rank_member(user2.username, user2.trophy, user2.idUser)
 
