@@ -295,19 +295,19 @@ def calculate_trophy(user_trophy, user_level, is_winner, turn, scoreDiff):
         if user_trophy <= 15:
             return -user_trophy
         return -15 
-    else if scoreDiff == 1:
+    elif scoreDiff == 1:
         if is_winner:
             return randint(35,40)
         if user_trophy <= 20:
             return -user_trophy
         return -20 
-    else if scoreDiff == 2:
+    elif scoreDiff == 2:
         if is_winner:
             return randint(25,40)
         if user_trophy <= 15:
             return -user_trophy
         return -15 
-    else if scoreDiff == 3:
+    elif scoreDiff == 3:
         if is_winner:
             return randint(20,30)
         if user_trophy <= 10:
