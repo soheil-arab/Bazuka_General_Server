@@ -181,9 +181,9 @@ def get_updates(request):
             user, created = User.objects.get_or_create(idDevice=deviceID)
         else:
             user = User.objects.get(idUser=userID)
-        if created:
-            highscore_lb = Leaderboard('Bazuka_V1')
-            highscore_lb.rank_member(user.username, user.trophy, user.idUser)
+#        if created:
+#            highscore_lb = Leaderboard('Bazuka_V1')
+#            highscore_lb.rank_member(user.username, user.trophy, user.idUser)
         userID = user.idUser
         username = user.username
 
