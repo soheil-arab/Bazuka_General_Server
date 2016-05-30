@@ -282,7 +282,7 @@ def update_match_result(request):
                 'trophy_sum': user2.trophy,
                 'trophy_diff': u2diff
             },
-            'winner': int(winner),
+            'winner': 0,
             'roomID': roomID
 
         }
