@@ -137,7 +137,7 @@ def update_username(request):
         user.username = username
         user.save()
         highscore_lb = Leaderboard('Bazuka_V1')
-        highscore_lb.rank_member(user1.username, user1.trophy, user1.idUser)
+        highscore_lb.rank_member(user.username, user.trophy, user.idUser)
 
         responseData = {
             'userID': userID,
