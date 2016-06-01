@@ -245,8 +245,8 @@ def update_match_result(request):
                     'trophy_sum': 0,
                     'trophy_diff': 0
                 },
-                'winner': 0,
-                'roomID': int(winner)
+                'winner': int(winner),
+                'roomID': roomID
             }   
             return JsonResponse(responseData, status=status.HTTP_200_OK)
         else:
