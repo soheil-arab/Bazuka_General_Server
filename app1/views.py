@@ -219,18 +219,21 @@ def update_match_result(request):
         userID = [user1ID, user2ID]
         winner = data.get('winner', default=None)
         turn = data.get('turn', default=None)
+        u1diff = None
+        u2diff = None
         if winner is None or turn is None :
             return Response('invalid userID', status=status.HTTP_400_BAD_REQUEST)
         if int(user2ID) == -1 :
             user = User.objects.get(idUser=user1ID)
+            udiff = None
             if int(user1Score) > int(user2Score):
                 user.winCount += 1
-                u1diff = calculate_trophy(user.trophy, user.level, True, int(turn), scoreDiff)
-                user.trophy += u1diff
+                udiff = calculate_trophy(user.trophy, user.level, True, int(turn), scoreDiff)
+                user.trophy += udiff
             else:
                 user.loseCount += 1
-                u2diff = calculate_trophy(user.trophy, user.level, False, int(turn), scoreDiff)
-                user.trophy += u2diff
+                udiff = calculate_trophy(user.trophy, user.level, False, int(turn), scoreDiff)
+                user.trophy += udiff
             user.save()
             highscore_lb = Leaderboard('Bazuka_V1')
             highscore_lb.rank_member(user.username, user.trophy, user.idUser)
@@ -238,7 +241,7 @@ def update_match_result(request):
                 'user1': {
                     'userID': user.idUser,
                     'trophy_sum': user.trophy,
-                    'trophy_diff': u1diff
+                    'trophy_diff': udiff
                 },
                 'user2': {
                     'userID': -1,
