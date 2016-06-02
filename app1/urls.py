@@ -13,4 +13,5 @@ urlpatterns = [
     url(r'deck$', views.deck),
     url(r'card$', views.card),
     url(r'bug_report$', views.bug_report),
+    url(r'bot_deck$', views.bot_deck),
 ]
