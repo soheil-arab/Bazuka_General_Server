@@ -229,11 +229,11 @@ def update_match_result(request):
                 user.trophy += u1diff
             else:
                 user.loseCount += 1
-                u2diff = calculate_trophy(user2.trophy, user2.level, False, int(turn), scoreDiff)
+                u2diff = calculate_trophy(user.trophy, user.level, False, int(turn), scoreDiff)
                 user.trophy += u2diff
             user.save()
             highscore_lb = Leaderboard('Bazuka_V1')
-            highscore_lb.rank_member(user1.username, user1.trophy, user1.idUser)
+            highscore_lb.rank_member(user.username, user.trophy, user.idUser)
             responseData = {
                 'user1': {
                     'userID': user.idUser,
