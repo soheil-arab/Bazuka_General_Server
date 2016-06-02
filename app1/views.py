@@ -67,7 +67,7 @@ def deck(request):
         except ObjectDoesNotExist:
             return JsonResponse({'error':'user not found'}, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET])
+@api_view(['GET'])
 def bot_deck(request):
     a = random.choice([
         [15, 3, 5, 7, 9, 2, 16, 12],
