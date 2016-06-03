@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from django.http import JsonResponse
 from app1.models import User,Card,CardType
 import json
+import random
 from random import *
 # from Crypto.Signature import PKCS1_v1_5
 # from Crypto.Hash import SHA256
@@ -69,11 +70,11 @@ def deck(request):
 
 @api_view(['GET'])
 def bot_deck(request):
-    a = random.choice([
+    a = {'deck_order': random.choice([
         [15, 3, 5, 7, 9, 2, 16, 12],
         [6, 17, 8, 1, 11, 14, 16, 18],
         [12, 17, 15, 5, 19, 13, 6, 14]
-    ])
+    ])}
     return JsonResponse(a, status=status.HTTP_200_OK)
 
     
