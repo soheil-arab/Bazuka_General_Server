@@ -5,7 +5,6 @@ from django.http import JsonResponse
 from app1.models import User,Card,CardType
 import json
 import random
-from random import *
 # from Crypto.Signature import PKCS1_v1_5
 # from Crypto.Hash import SHA256
 # from Crypto.PublicKey import RSA
@@ -325,13 +324,13 @@ def get_leaders(request):
 def calculate_trophy(user_trophy, user_level, is_winner, turn, scoreDiff):
     if int(turn) > 20:
         if is_winner:
-            return randint(30,40)
+            return random.randint(30,40)
         if user_trophy <= 15:
             return -user_trophy
         return -15 
     elif scoreDiff == 1:
         if is_winner:
-            return randint(35,40)
+            return random.randint(35,40)
         if user_trophy <= 20:
             return -user_trophy
         return -20 
@@ -343,7 +342,7 @@ def calculate_trophy(user_trophy, user_level, is_winner, turn, scoreDiff):
         return -15 
     elif scoreDiff == 3:
         if is_winner:
-            return randint(20,30)
+            return random.randint(20,30)
         if user_trophy <= 10:
             return -user_trophy
         return -10 
