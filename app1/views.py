@@ -336,7 +336,7 @@ def calculate_trophy(user_trophy, user_level, is_winner, turn, scoreDiff):
         return -20 
     elif scoreDiff == 2:
         if is_winner:
-            return randint(25,40)
+            return random.randint(25,40)
         if user_trophy <= 15:
             return -user_trophy
         return -15 
