@@ -232,7 +232,53 @@ def update_match_result(request):
         u2diff = None
         if winner is None or turn is None :
             return Response('invalid userID', status=status.HTTP_400_BAD_REQUEST)
-        if int(user2ID) == -1 :
+        if int(user2ID) == -2 :
+            user = User.objects.get(idUser=user1ID)
+            if user.winCount != 0 or user.loseCount != 0:
+                responseData = {
+                    'user1': {
+                        'userID': user.idUser,
+                        'trophy_sum': user.trophy,
+                        'trophy_diff': 0
+                    },
+                    'user2': {
+                        'userID': -1,
+                        'trophy_sum': 0,
+                        'trophy_diff': 0
+                    },
+                    'winner': int(winner),
+                    'roomID': roomID
+                }   
+                return JsonResponse(responseData, status=status.HTTP_200_OK)
+            else:    
+                udiff = None
+                if int(user1Score) > int(user2Score):
+                    user.winCount += 1
+                    udiff = calculate_trophy(user.trophy, user.level, True, int(turn), scoreDiff)
+                    user.trophy += udiff
+                else:
+                    user.loseCount += 1
+                    udiff = calculate_trophy(user.trophy, user.level, False, int(turn), scoreDiff)
+                    user.trophy += udiff
+                user.save()
+                highscore_lb = Leaderboard('Bazuka_V1')
+                highscore_lb.rank_member(user.username, user.trophy, user.idUser)
+                responseData = {
+                    'user1': {
+                        'userID': user.idUser,
+                        'trophy_sum': user.trophy,
+                        'trophy_diff': udiff
+                    },
+                    'user2': {
+                        'userID': -1,
+                        'trophy_sum': 0,
+                        'trophy_diff': 0
+                    },
+                    'winner': int(winner),
+                    'roomID': roomID
+                }   
+                return JsonResponse(responseData, status=status.HTTP_200_OK)
+        elif int(user2ID) == -1 :
             user = User.objects.get(idUser=user1ID)
             udiff = None
             if int(user1Score) > int(user2Score):
