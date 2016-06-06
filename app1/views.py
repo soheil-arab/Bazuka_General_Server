@@ -208,7 +208,7 @@ def get_updates(request):
             'cardList': card_list,
             'deck1': user.deck1,
             'trophy': user.trophy,
-            'version':"1.0.0"
+            'version':"1.1.0"
         }
         return JsonResponse(responseData, status=status.HTTP_200_OK)
 
