@@ -2,20 +2,21 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.http import JsonResponse
-from app1.models import User,Card,CardType
+from app1.models import User, Card, CardType, Clan, UserClanData, RewardPack
 import json
 from random import *
-# from Crypto.Signature import PKCS1_v1_5
-# from Crypto.Hash import SHA256
-# from Crypto.PublicKey import RSA
-# from base64 import b64decode,b64encode
 
 from datetime import datetime
 from leaderboard.leaderboard import Leaderboard
 from django.core.exceptions import ObjectDoesNotExist
-# import pickle
 
-
+from django.http import Http404
+from app1.serializers import UserSerializer, ClanSerializer, PackSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+import time
+import reward_conf
 # @api_view(['POST'])
 # def upgrade_card(request):
 
@@ -92,7 +93,7 @@ def card(request):
 
 def calculate_upgrade_cost(level, count):
 
-    return 10
+    return (10,10)
 
 @api_view(['POST'])
 def match_request(request):
@@ -139,7 +140,7 @@ def update_username(request):
 
         responseData = {
             'userID': userID,
-            'deviceID': user.idDevice,
+            'deviceID': user.deviceID,
             'username': username
         }
         return JsonResponse(responseData, status=status.HTTP_200_OK)
@@ -193,7 +194,7 @@ def get_updates(request):
             'deviceID': deviceID,
             'cardList': card_list,
             'deck1': user.deck1,
-            'trophy': user.trophy
+            'trophy': user.trophiesCount
         }
         return JsonResponse(responseData, status=status.HTTP_200_OK)
 
@@ -238,29 +239,29 @@ def update_match_result(request):
         user2 = User.objects.get(idUser=userID[1 - int(winner)])
 
         user1.winCount += 1
-        u1diff = calculate_trophy(user1.trophy, user1.level, True, turn)
-        user1.trophy += u1diff
+        u1diff = calculate_trophy(user1.trophiesCount, user1.level, True, turn)
+        user1.trophiesCount += u1diff
 
         user2.loseCount += 1
-        u2diff = calculate_trophy(user2.trophy, user2.level, False, turn)
-        user2.trophy += u2diff
+        u2diff = calculate_trophy(user2.trophiesCount, user2.level, False, turn)
+        user2.trophiesCount += u2diff
 
         user1.save()
         user2.save()
         highscore_lb = Leaderboard('Bazuka_V1')
         highscore_lb.delete_leaderboard()
-        highscore_lb.rank_member(user1.username, user1.trophy, user1.idUser)
-        highscore_lb.rank_member(user2.username, user2.trophy, user2.idUser)
+        highscore_lb.rank_member(user1.username, user1.trophiesCount, user1.idUser)
+        highscore_lb.rank_member(user2.username, user2.trophiesCount, user2.idUser)
 
         responseData = {
             'user1': {
                 'userID': user1.idUser,
-                'trophy_sum': user1.trophy,
+                'trophy_sum': user1.trophiesCount,
                 'trophy_diff': u1diff
             },
             'user2': {
                 'userID': user2.idUser,
-                'trophy_sum': user2.trophy,
+                'trophy_sum': user2.trophiesCount,
                 'trophy_diff': u2diff
             },
             'winner': winner,
@@ -303,3 +304,175 @@ class MyEncoder(json.JSONEncoder):
        if isinstance(obj, bytes):
           return obj.decode()
        return json.JSONEncoder.default(self, obj)
+
+
+class UserView(APIView):
+    def get_object(self, pk):
+        try:
+            return User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        user = self.get_object(pk)
+        user = UserSerializer(user)
+        return Response(user.data)
+
+    # def put(self, request, pk, format=None):
+    #     user = self.get_object(pk)
+    #     serializer = UserSerializer(user, data=request.DATA)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    #
+    # def delete(self, request, pk, format=None):
+    #     user = self.get_object(pk)
+    #     user.delete()
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
+
+class ClanDetail(APIView):
+    def get_object(self, pk):
+        try:
+            return Clan.objects.get(pk=pk)
+        except Clan.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        clan = self.get_object(pk)
+        clan = ClanSerializer(clan)
+        return Response(clan.data)
+
+
+    # def put(self, request, pk, format=None):
+    #     user = self.get_object(pk)
+    #     serializer = UserSerializer(user, data=request.DATA)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    #
+    # def delete(self, request, pk, format=None):
+    #     user = self.get_object(pk)
+    #     user.delete()
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
+
+class ClanList(APIView):
+    def post(self, request, format=None):
+        serializer = ClanSerializer(data=request.data)
+        if serializer.is_valid():
+            clan = serializer.save()#TODO: set clan creator to user --> auth
+            uid = request.data['userid']
+            user = UserView.get_object(self=None, pk=uid)
+            if user.clanData is None:
+                clanData = UserClanData.objects.create()
+                user.clanData = clanData
+            user.clanData.position = 1
+            user.clanData.save()
+            user.userClan = clan
+            user.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ClanMembership(APIView):
+    def post(self, request, clan_pk, action, format=None):
+        print(action)
+        print(type(clan_pk))
+        print(type(action))
+        if action == "join":
+            uid = request.data['userid']
+            user = UserView.get_object(self=None, pk=uid)
+            clan = ClanDetail.get_object(self=None, pk=clan_pk)
+            user.userClan = clan
+            #TODO: update score and other things
+            if user.clanData is None:
+                clanData = UserClanData.objects.create()
+                user.clanData = clanData
+            user.save()
+            clan = ClanSerializer(clan)
+            return Response(clan.data, status=status.HTTP_201_CREATED)
+        if action == "leave":
+            uid = request.data['userid']
+            user = UserView.get_object(self=None, pk=uid)
+            clan = ClanDetail.get_object(self=None, pk=clan_pk)
+            if uid != str(user.userClan):
+                user.userClan = None
+                #TODO: update score and other things
+                user.clanData.donate_count = 0
+                user.clanData.lastRequestTime = 0
+                user.clanData.position = 0
+                user.clanData.save()
+                user.save()
+                clan = ClanSerializer(clan)
+                return Response(clan.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response("clanLeader can not leave the clan", status=status.HTTP_400_BAD_REQUEST)
+
+        return Response("invalid action", status=status.HTTP_400_BAD_REQUEST)
+
+
+class CardUpgrade(APIView):
+    def post(self, request, cardID, Format=None):
+        userID = request.data['userID']
+        cards = Card.objects.filter(user=userID).filter(cardType=cardID)
+        if len(cards) != 1:
+            return Response('card/user not found', status=status.HTTP_400_BAD_REQUEST)
+        card = cards[0]
+        (upgrade_cost, xp) = calculate_upgrade_cost(card.cardLevel, card.cardCount)
+        if upgrade_cost > card.cardCount:
+            return Response('not enough cards', status=status.HTTP_400_BAD_REQUEST)
+        card.cardLevel += 1
+        card.cardCount -= upgrade_cost
+        card.user.xp += xp
+        card.user.save()
+        card.save()
+        response_data = {'userID': userID, 'cardID': cardID, 'cardLevel': card.cardLevel, 'cardCount': card.cardCount, 'excess_xp': xp}
+        return Response(response_data, status=status.HTTP_200_CREATED)
+
+
+class UnpackReward(APIView):
+    def get_object(self, pk):
+        try:
+            return RewardPack.objects.get(pk=pk)
+        except RewardPack.DoesNotExist:
+            raise Http404
+
+    def post(self, request, reward_pk, Format=None):
+        userID = request.data['userID']
+        pack = self.get_object(reward_pk)
+        if int(time.time()) - pack.unlockStartTime < reward_conf.pack_wait_time[pack.packType]:
+            return Response('invalid unpack action', status=status.HTTP_400_BAD_REQUEST)
+        user = UserView.get_object(None, userID)
+        gold, total_card = self.reward(pack.packType, pack.packLevel)
+        user.gold += gold
+
+        user.save()
+        pack.delete()
+        return Response({}, status=status.HTTP_200_CREATED)
+
+    def reward(self, packType, level):
+        gold = randrange(reward_conf.PackTotalCards[packType][level][1],
+                         reward_conf.PackTotalCards[packType][level][2])
+        total_card = reward_conf.PackTotalCards[packType][level][0]
+        return gold, total_card
+
+    def get_or_create_card(self, card_type, user_id):
+        card_obj, created = Card.objects.get_or_create(user=user_id, cardType=card_type)
+        return card_obj
+
+
+class UnlockPack(APIView):
+
+    def get_object(self, pk):
+        try:
+            return RewardPack.objects.get(pk=pk)
+        except RewardPack.DoesNotExist:
+            raise Http404
+
+    def post(self, request, reward_pk, Format=None):
+        userID = request.data['userID']
+        pack = self.get_object(reward_pk)
+        pack.unlockStartTime = int(time.time())
+        pack.save()
+        pack = PackSerializer(pack)
+        return Response(pack.data, status=status.HTTP_201_CREATED)

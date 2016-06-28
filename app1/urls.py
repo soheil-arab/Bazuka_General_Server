@@ -5,6 +5,12 @@ from . import views
 app_name = 'app1'
 
 urlpatterns = [
+    url(r'^users/(?P<pk>[0-9]+)/$', views.UserView.as_view()),
+
+    url(r'^clans/$', views.ClanList.as_view()),
+    url(r'^clans/(?P<pk>[0-9]+)/$', views.ClanDetail.as_view()),
+    url(r'^clans/(?P<clan_pk>[0-9]+)/(?P<action>[a-z]+)/$', views.ClanMembership.as_view()),
+
     url(r'match_request$', views.match_request),
     url(r'update_match_result$', views.update_match_result),
     url(r'get_updates$', views.get_updates),
