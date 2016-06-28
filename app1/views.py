@@ -55,7 +55,7 @@ def deck(request):
             return Response('user not found', status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'POST':
         data = request.POST
-        userID = data['userID']
+        userID = num(data['userID'])
         deck_str = data['deck']
         deck_order = json.loads(deck_str)
         try:
@@ -68,13 +68,22 @@ def deck(request):
         except ObjectDoesNotExist:
             return JsonResponse({'error':'user not found'}, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['GET'])
+def bot_deck(request):
+    a = {'deck_order': random.choice([
+        [15, 3, 5, 7, 9, 2, 16, 12],
+        [6, 17, 8, 1, 11, 14, 16, 18],
+        [12, 17, 15, 5, 19, 13, 6, 14]
+    ])}
+    return JsonResponse(a, status=status.HTTP_200_OK)
 
+    
 @api_view(['GET'])
 def card(request):
 
     if request.method == 'GET':
         data = request.GET
-        userID = data['userID']
+        userID = num(data['userID'])
         cards = Card.objects.filter(user=userID)
         if len(cards) < 1:
             return Response('no card!', status=status.HTTP_400_BAD_REQUEST)
@@ -128,7 +137,7 @@ def update_username(request):
 
     if request.method == 'POST':
         data = request.POST
-        userID = data.get('userID', default=None)
+        userID = (data.get('userID', default=None))
         username = data.get('username', default=None)
         user = None
 
@@ -137,6 +146,8 @@ def update_username(request):
 
         user.username = username
         user.save()
+        highscore_lb = Leaderboard('Bazuka_V1')
+        highscore_lb.rank_member(user.username, user.trophy, user.idUser)
 
         responseData = {
             'userID': userID,
@@ -175,13 +186,16 @@ def get_updates(request):
     if request.method == 'GET':
         data = request.GET
         deviceID = data.get('deviceID', default=None)
-        userID = data.get('userID', default=None)
+        userID = (data.get('userID', default=None))
         user = None
         created = None
         if userID is None:
             user, created = User.objects.get_or_create(idDevice=deviceID)
         else:
             user = User.objects.get(idUser=userID)
+#        if created:
+#            highscore_lb = Leaderboard('Bazuka_V1')
+#            highscore_lb.rank_member(user.username, user.trophy, user.idUser)
         userID = user.idUser
         username = user.username
 
@@ -194,7 +208,8 @@ def get_updates(request):
             'deviceID': deviceID,
             'cardList': card_list,
             'deck1': user.deck1,
-            'trophy': user.trophiesCount
+            'trophy': user.trophiesCount,
+            'version':"1.1.0"
         }
         return JsonResponse(responseData, status=status.HTTP_200_OK)
 
@@ -206,69 +221,139 @@ def update_match_result(request):
         user1ID = data.get('user1ID', default=None)
         user2ID = data.get('user2ID', default=None)
         roomID = data.get('roomID', default=None)
+        user1Score = data.get('user1Score', default=None)
+        user2Score = data.get('user2Score', default=None)
+        scoreDiff = abs(int(user1Score) - int(user2Score))
         if user1ID is None or user2ID is None:
             return Response('invalid userID', status=status.HTTP_400_BAD_REQUEST)
         userID = [user1ID, user2ID]
         winner = data.get('winner', default=None)
         turn = data.get('turn', default=None)
+        u1diff = None
+        u2diff = None
         if winner is None or turn is None :
             return Response('invalid userID', status=status.HTTP_400_BAD_REQUEST)
 
-        # time = data['time']
-        # signb64 = data['b64sign']
+        if int(user2ID) == -2 :
+            user = User.objects.get(idUser=user1ID)
+            if user.winCount != 0 or user.loseCount != 0:
+                responseData = {
+                    'user1': {
+                        'userID': user.idUser,
+                        'trophy_sum': user.trophy,
+                        'trophy_diff': 0
+                    },
+                    'user2': {
+                        'userID': -1,
+                        'trophy_sum': 0,
+                        'trophy_diff': 0
+                    },
+                    'winner': int(winner),
+                    'roomID': roomID
+                }   
+                return JsonResponse(responseData, status=status.HTTP_200_OK)
+            else:    
+                udiff = None
+                if int(user1Score) > int(user2Score):
+                    user.winCount += 1
+                    udiff = calculate_trophy(user.trophy, user.level, True, int(turn), scoreDiff)
+                    user.trophy += udiff
+                else:
+                    user.loseCount += 1
+                    udiff = calculate_trophy(user.trophy, user.level, False, int(turn), scoreDiff)
+                    user.trophy += udiff
+                user.save()
+                highscore_lb = Leaderboard('Bazuka_V1')
+                highscore_lb.rank_member(user.username, user.trophy, user.idUser)
+                responseData = {
+                    'user1': {
+                        'userID': user.idUser,
+                        'trophy_sum': user.trophy,
+                        'trophy_diff': udiff
+                    },
+                    'user2': {
+                        'userID': -1,
+                        'trophy_sum': 0,
+                        'trophy_diff': 0
+                    },
+                    'winner': int(winner),
+                    'roomID': roomID
+                }   
+                return JsonResponse(responseData, status=status.HTTP_200_OK)
+        elif int(user2ID) == -1 :
+            user = User.objects.get(idUser=user1ID)
+            udiff = None
+            if int(user1Score) > int(user2Score):
+                user.winCount += 1
+                udiff = calculate_trophy(user.trophy, user.level, True, int(turn), scoreDiff)
+                user.trophy += udiff
+            else:
+                user.loseCount += 1
+                udiff = calculate_trophy(user.trophy, user.level, False, int(turn), scoreDiff)
+                user.trophy += udiff
+            user.save()
+            highscore_lb = Leaderboard('Bazuka_V1')
+            highscore_lb.rank_member(user.username, user.trophy, user.idUser)
+            responseData = {
+                'user1': {
+                    'userID': user.idUser,
+                    'trophy_sum': user.trophy,
+                    'trophy_diff': udiff
+                },
+                'user2': {
+                    'userID': -1,
+                    'trophy_sum': 0,
+                    'trophy_diff': 0
+                },
+                'winner': int(winner),
+                'roomID': roomID
+            }   
+            return JsonResponse(responseData, status=status.HTTP_200_OK)
+        else:
+            user1 = User.objects.get(idUser=userID[int(winner)])
+            user2 = User.objects.get(idUser=userID[1 - int(winner)])
+            if int(user1Score) == -1 or int(user2Score) == -1:
+                user1.winCount += 1
+                u1diff = 20
+                user1.trophy += u1diff
+        
+                user2.loseCount += 1
+                u2diff = -10
+                if user2.trophy < 10:
+                    u2diff = -user2.trophy
+                user2.trophy += u2diff
+                
+            else:
+                user1.winCount += 1
+                u1diff = calculate_trophy(user1.trophy, user1.level, True, int(turn), scoreDiff)
+                user1.trophy += u1diff
+        
+                user2.loseCount += 1
+                u2diff = calculate_trophy(user2.trophy, user2.level, False, int(turn), scoreDiff)
+                user2.trophy += u2diff
+    
+            user1.save()
+            user2.save()
+            highscore_lb = Leaderboard('Bazuka_V1')
+            highscore_lb.rank_member(user1.username, user1.trophy, user1.idUser)
+            highscore_lb.rank_member(user2.username, user2.trophy, user2.idUser)
 
-        # file = open('public.pem', 'r')
-        # pk = RSA.importKey(file.read())
-        # file.close()
-        # verifier = PKCS1_v1_5.new(pk)
-        # msg = json.dumps({
-        #     'user1ID': userID[0],
-        #     'user2ID': userID[1],
-        #     'winner': winner,
-        #     'time': time
-        # }, sort_keys=True, separators=(',', ':'))
-        #
-        # h = SHA256.new(msg.encode())
-        # print(msg.encode())
-        # print(h.hexdigest())
-        # print(b64decode(signb64))
-        # if not verifier.verify(h, b64decode(signb64)):
-        #     return Response('wrong signature', status=status.HTTP_400_BAD_REQUEST)
-
-        user1 = User.objects.get(idUser=userID[int(winner)])
-        user2 = User.objects.get(idUser=userID[1 - int(winner)])
-
-        user1.winCount += 1
-        u1diff = calculate_trophy(user1.trophiesCount, user1.level, True, turn)
-        user1.trophiesCount += u1diff
-
-        user2.loseCount += 1
-        u2diff = calculate_trophy(user2.trophiesCount, user2.level, False, turn)
-        user2.trophiesCount += u2diff
-
-        user1.save()
-        user2.save()
-        highscore_lb = Leaderboard('Bazuka_V1')
-        highscore_lb.delete_leaderboard()
-        highscore_lb.rank_member(user1.username, user1.trophiesCount, user1.idUser)
-        highscore_lb.rank_member(user2.username, user2.trophiesCount, user2.idUser)
-
-        responseData = {
-            'user1': {
-                'userID': user1.idUser,
-                'trophy_sum': user1.trophiesCount,
-                'trophy_diff': u1diff
-            },
-            'user2': {
-                'userID': user2.idUser,
-                'trophy_sum': user2.trophiesCount,
-                'trophy_diff': u2diff
-            },
-            'winner': winner,
-            'roomID': roomID
-
-        }
-        return JsonResponse(responseData, status=status.HTTP_200_OK)
+            responseData = {
+                'user1': {
+                    'userID': user1.idUser,
+                    'trophy_sum': user1.trophy,
+                    'trophy_diff': u1diff
+                },
+                'user2': {
+                    'userID': user2.idUser,
+                    'trophy_sum': user2.trophy,
+                    'trophy_diff': u2diff
+                },
+                'winner': 0,
+                'roomID': roomID
+    
+            }
+            return JsonResponse(responseData, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def get_leaders(request):
@@ -276,7 +361,7 @@ def get_leaders(request):
         # data = request.data
         # userID = data['userID']
         # deviceID = data['deviceID']
-        highscore_lb = Leaderboard('TheTree')
+        highscore_lb = Leaderboard('Bazuka_V1')
         top_100 = highscore_lb.top(100)
         responseData = {
             "top": top_100
@@ -284,19 +369,32 @@ def get_leaders(request):
         return JsonResponse(responseData, status=status.HTTP_200_OK,encoder=MyEncoder)
 
 
-def calculate_trophy(user_trophy, user_level, is_winner, turn):
-    if is_winner:
-        if turn < 10:
-            return randint(15, 20)
-        elif 10 <= turn < 20:
-            return randint(25, 30)
-        elif 20 <= turn < 30:
-            return randint(35, 40)
-        else:
-            return 40
-    if user_trophy <= 15:
-        return -user_trophy
-    return -15
+def calculate_trophy(user_trophy, user_level, is_winner, turn, scoreDiff):
+    if int(turn) > 20:
+        if is_winner:
+            return random.randint(30,40)
+        if user_trophy <= 15:
+            return -user_trophy
+        return -15 
+    elif scoreDiff == 1:
+        if is_winner:
+            return random.randint(35,40)
+        if user_trophy <= 20:
+            return -user_trophy
+        return -20 
+    elif scoreDiff == 2:
+        if is_winner:
+            return random.randint(25,40)
+        if user_trophy <= 15:
+            return -user_trophy
+        return -15 
+    elif scoreDiff == 3:
+        if is_winner:
+            return random.randint(20,30)
+        if user_trophy <= 10:
+            return -user_trophy
+        return -10 
+
 
 
 class MyEncoder(json.JSONEncoder):
@@ -476,3 +574,9 @@ class UnlockPack(APIView):
         pack.save()
         pack = PackSerializer(pack)
         return Response(pack.data, status=status.HTTP_201_CREATED)
+
+def num(s):
+    try:
+        return int(s)
+    except ValueError:
+        return -1
