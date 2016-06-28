@@ -8,6 +8,6 @@ class UserAdmin(admin.ModelAdmin):
     inlines = (CardInline,)
 
 admin.site.register(Card)
-admin.site.register(User, UserAdmin)
+admin.site.register(BazukaUser, UserAdmin)
 admin.site.register(Clan)
 admin.site.register(UserClanData)

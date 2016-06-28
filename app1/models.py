@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 import random
+from django.contrib.auth.models import User
 
 def default_deck_gen():
     return random.choice([
@@ -37,9 +38,9 @@ class Clan(models.Model):
     def __str__(self):
         return 'clan_{0}@{1}'.format(self.idClan, self.clanName)
 
-class User(models.Model):
+class BazukaUser(models.Model):
     idUser = models.AutoField(primary_key=True)
-    deviceID = models.CharField(max_length=200)
+    deviceID = models.CharField(max_length=200, blank=True, null=True)
     username = models.CharField(max_length=40, blank=True, default='')
     userCards = models.ManyToManyField(CardType, through='Card')
     trophiesCount = models.IntegerField(default=0)
@@ -56,6 +57,7 @@ class User(models.Model):
     gem = models.IntegerField(default=0)
     gold = models.IntegerField(default=0)
     clanData = models.OneToOneField('app1.UserClanData', blank=True, null=True)
+    basicUser = models.OneToOneField(User, related_name='bazukaUser', blank=True, null=True)
 
     def __str__(self):
         return 'user_{0}@{1}'.format(self.idUser, self.username)
@@ -64,14 +66,14 @@ class RewardPack(models.Model):
     packType = models.IntegerField(default=0)
     unlockStartTime = models.IntegerField()
     packLevel = models.IntegerField()
-    packUser = models.ForeignKey('app1.User', on_delete=models.CASCADE, related_name='rewardPacks')
+    packUser = models.ForeignKey('app1.models.BazukaUser', on_delete=models.CASCADE, related_name='rewardPacks')
 
 class Card(models.Model):
     idCard = models.AutoField(primary_key=True)
     cardLevel = models.SmallIntegerField(default=1)
     cardCount = models.SmallIntegerField(default=0)
     cardType = models.ForeignKey(CardType, on_delete=models.CASCADE, related_name='cards')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='cards')
+    user = models.ForeignKey(BazukaUser, on_delete=models.CASCADE, related_name='cards')
 
     class Meta:
         unique_together = (('user', 'cardType'), )

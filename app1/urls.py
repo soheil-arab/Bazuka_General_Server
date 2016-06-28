@@ -5,7 +5,9 @@ from . import views
 app_name = 'app1'
 
 urlpatterns = [
-    url(r'^users/(?P<pk>[0-9]+)/$', views.UserView.as_view()),
+
+    url(r'^users/$', views.UserList.as_view()),
+    url(r'^users/(?P<pk>[0-9]+)/$', views.UserDetail.as_view()),
 
     url(r'^clans/$', views.ClanList.as_view()),
     url(r'^clans/(?P<pk>[0-9]+)/$', views.ClanDetail.as_view()),

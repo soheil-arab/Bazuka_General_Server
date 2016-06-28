@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 ('packType', models.IntegerField(default=0)),
                 ('unlockStartTime', models.IntegerField()),
                 ('packLevel', models.IntegerField()),
-                ('packUser', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='rewardPacks', to='app1.User')),
+                ('packUser', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='rewardPacks', to='app1.models.BazukaUser')),
             ],
         ),
     ]
