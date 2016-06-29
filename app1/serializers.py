@@ -1,5 +1,5 @@
 __author__ = 'soheil'
-from app1.models import BazukaUser, Clan, CardType, Card, RewardPack
+from app1.models import User, Clan, CardType, Card#, RewardPack
 
 from rest_framework import serializers
 
@@ -13,7 +13,7 @@ class ClanUserSerializer(serializers.ModelSerializer):
     position = serializers.IntegerField(source='clanData.position', read_only=True)
 
     class Meta:
-        model = BazukaUser
+        model = User
         fields = ('idUser', 'username', 'level', 'trophiesCount', 'position', 'donate_count')
 
 class ClanSerializer(serializers.ModelSerializer):
@@ -32,16 +32,16 @@ class UserSerializer(serializers.ModelSerializer):
     cards = CardSerializer(many=True)
 
     class Meta:
-        model = BazukaUser
+        model = User
         fields = ('idUser', 'username', 'cards', 'trophiesCount', 'winCount', 'loseCount', 'deck1', 'xp', 'level',
                   'clan_id', 'clan_name', 'totalDonations')
 
 
-class PackSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = RewardPack
-        fields = ('packType', 'unlockStartTime', 'packLevel', 'packUser')
+# class PackSerializer(serializers.ModelSerializer):
+#
+#     class Meta:
+#         model = RewardPack
+#         fields = ('packType', 'unlockStartTime', 'packLevel', 'packUser')
 
 # class ClanCreatorSerializer(serializers.ModelSerializer):
 #     class Meta:

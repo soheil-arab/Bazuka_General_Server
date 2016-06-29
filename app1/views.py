@@ -2,8 +2,8 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.http import JsonResponse
-from app1.models import BazukaUser, Card, CardType, Clan, UserClanData, RewardPack
-from django.contrib.auth.models import User
+from app1.models import User, Card, CardType, Clan, UserClanData#, RewardPack
+from django.contrib.auth.models import User as djangoUser
 import json
 from random import *
 
@@ -12,7 +12,7 @@ from leaderboard.leaderboard import Leaderboard
 from django.core.exceptions import ObjectDoesNotExist
 
 from django.http import Http404
-from app1.serializers import UserSerializer, ClanSerializer, PackSerializer
+from app1.serializers import UserSerializer, ClanSerializer#, PackSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -50,7 +50,7 @@ def deck(request):
         data = request.GET
         userID = data['userID']
         try:
-            user = BazukaUser.objects.get(idUser=userID)
+            user = User.objects.get(idUser=userID)
             deck_order = {'deck_order': user.deck1}
             return JsonResponse(deck_order, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
@@ -62,7 +62,7 @@ def deck(request):
         deck_order = json.loads(deck_str)
         try:
             #TODO: check for validity of deck numbers!
-            user = BazukaUser.objects.get(idUser=userID)
+            user = User.objects.get(idUser=userID)
             user.deck1 = deck_order
             user.save()
             return JsonResponse({}, status=status.HTTP_200_OK)
@@ -144,7 +144,7 @@ def update_username(request):
         user = None
 
         if userID is not None:
-            user = BazukaUser.objects.get(idUser=userID)
+            user = User.objects.get(idUser=userID)
 
         user.username = username
         user.save()
@@ -171,7 +171,7 @@ def bug_report(request):
 
         user = None
         if deviceID is not None:
-            user = BazukaUser.objects.get(deviceID=deviceID)
+            user = User.objects.get(deviceID=deviceID)
         if user is None:
             return Response('invalid ', status=status.HTTP_400_BAD_REQUEST)
         if str(user.idUser) != userID:
@@ -192,9 +192,9 @@ def get_updates(request):
         user = None
         created = None
         if userID is None:
-            user, created = BazukaUser.objects.get_or_create(deviceID=deviceID)
+            user, created = User.objects.get_or_create(deviecID=deviceID)
         else:
-            user = BazukaUser.objects.get(idUser=userID)
+            user = User.objects.get(idUser=userID)
 #        if created:
 #            highscore_lb = Leaderboard('Bazuka_V1')
 #            highscore_lb.rank_member(user.username, user.trophy, user.idUser)
@@ -210,7 +210,7 @@ def get_updates(request):
             'deviceID': deviceID,
             'cardList': card_list,
             'deck1': user.deck1,
-            'trophy': user.trophiesCount,
+            'trophy': user.trophy,
             'version':"1.1.0"
         }
         return JsonResponse(responseData, status=status.HTTP_200_OK)
@@ -237,7 +237,7 @@ def update_match_result(request):
             return Response('invalid userID', status=status.HTTP_400_BAD_REQUEST)
 
         if int(user2ID) == -2 :
-            user = BazukaUser.objects.get(idUser=user1ID)
+            user = User.objects.get(idUser=user1ID)
             if user.winCount != 0 or user.loseCount != 0:
                 responseData = {
                     'user1': {
@@ -283,7 +283,7 @@ def update_match_result(request):
                 }   
                 return JsonResponse(responseData, status=status.HTTP_200_OK)
         elif int(user2ID) == -1 :
-            user = BazukaUser.objects.get(idUser=user1ID)
+            user = User.objects.get(idUser=user1ID)
             udiff = None
             if int(user1Score) > int(user2Score):
                 user.winCount += 1
@@ -312,8 +312,8 @@ def update_match_result(request):
             }   
             return JsonResponse(responseData, status=status.HTTP_200_OK)
         else:
-            user1 = BazukaUser.objects.get(idUser=userID[int(winner)])
-            user2 = BazukaUser.objects.get(idUser=userID[1 - int(winner)])
+            user1 = User.objects.get(idUser=userID[int(winner)])
+            user2 = User.objects.get(idUser=userID[1 - int(winner)])
             if int(user1Score) == -1 or int(user2Score) == -1:
                 user1.winCount += 1
                 u1diff = 20
@@ -409,22 +409,22 @@ class MyEncoder(json.JSONEncoder):
 class UserList(APIView):
 
     def post(self, request, Format=None):
-        uuid = request.data['uuid']
-        password = uuid+'@{0}'.format(time.time())
-        m = hashlib.md5()
-        m.update(password.encode('utf-8'))
-        password = m.hexdigest()
-        user = User.objects.create_user(uuid, email=None, password=password)
-        user = BazukaUser.objects.create(basicUser=user)
-        user = UserSerializer(user)
-        return Response(user.data, status=status.HTTP_201_CREATED)
-
+        # uuid = request.data['uuid']
+        # password = uuid+'@{0}'.format(int(time.time() * 100))
+        # m = hashlib.md5()
+        # m.update(password.encode('utf-8'))
+        # password = m.hexdigest()
+        # user = djangoUser.objects.create_user(uuid, email=None, password=password)
+        # user = User.objects.create(basicUser=user)
+        # user = UserSerializer(user)
+        # return Response(user.data, status=status.HTTP_201_CREATED)
+        return Response({})
 
 class UserDetail(APIView):
     def get_object(self, pk):
         try:
-            return BazukaUser.objects.get(pk=pk)
-        except BazukaUser.DoesNotExist:
+            return User.objects.get(pk=pk)
+        except User.DoesNotExist:
             raise Http404
 
     def get(self, request, pk, format=None):
@@ -532,52 +532,52 @@ class CardUpgrade(APIView):
         return Response(response_data, status=status.HTTP_200_CREATED)
 
 
-class UnpackReward(APIView):
-    def get_object(self, pk):
-        try:
-            return RewardPack.objects.get(pk=pk)
-        except RewardPack.DoesNotExist:
-            raise Http404
+# class UnpackReward(APIView):
+#     def get_object(self, pk):
+#         try:
+#             return RewardPack.objects.get(pk=pk)
+#         except RewardPack.DoesNotExist:
+#             raise Http404
+#
+#     def post(self, request, reward_pk, Format=None):
+#         userID = request.data['userID']
+#         pack = self.get_object(reward_pk)
+#         if int(time.time()) - pack.unlockStartTime < reward_conf.pack_wait_time[pack.packType]:
+#             return Response('invalid unpack action', status=status.HTTP_400_BAD_REQUEST)
+#         user = UserDetail.get_object(None, userID)
+#         gold, total_card = self.reward(pack.packType, pack.packLevel)
+#         user.gold += gold
+#
+#         user.save()
+#         pack.delete()
+#         return Response({}, status=status.HTTP_200_CREATED)
+#
+#     def reward(self, packType, level):
+#         gold = randrange(reward_conf.PackTotalCards[packType][level][1],
+#                          reward_conf.PackTotalCards[packType][level][2])
+#         total_card = reward_conf.PackTotalCards[packType][level][0]
+#         return gold, total_card
+#
+#     def get_or_create_card(self, card_type, user_id):
+#         card_obj, created = Card.objects.get_or_create(user=user_id, cardType=card_type)
+#         return card_obj
 
-    def post(self, request, reward_pk, Format=None):
-        userID = request.data['userID']
-        pack = self.get_object(reward_pk)
-        if int(time.time()) - pack.unlockStartTime < reward_conf.pack_wait_time[pack.packType]:
-            return Response('invalid unpack action', status=status.HTTP_400_BAD_REQUEST)
-        user = UserDetail.get_object(None, userID)
-        gold, total_card = self.reward(pack.packType, pack.packLevel)
-        user.gold += gold
 
-        user.save()
-        pack.delete()
-        return Response({}, status=status.HTTP_200_CREATED)
-
-    def reward(self, packType, level):
-        gold = randrange(reward_conf.PackTotalCards[packType][level][1],
-                         reward_conf.PackTotalCards[packType][level][2])
-        total_card = reward_conf.PackTotalCards[packType][level][0]
-        return gold, total_card
-
-    def get_or_create_card(self, card_type, user_id):
-        card_obj, created = Card.objects.get_or_create(user=user_id, cardType=card_type)
-        return card_obj
-
-
-class UnlockPack(APIView):
-
-    def get_object(self, pk):
-        try:
-            return RewardPack.objects.get(pk=pk)
-        except RewardPack.DoesNotExist:
-            raise Http404
-
-    def post(self, request, reward_pk, Format=None):
-        userID = request.data['userID']
-        pack = self.get_object(reward_pk)
-        pack.unlockStartTime = int(time.time())
-        pack.save()
-        pack = PackSerializer(pack)
-        return Response(pack.data, status=status.HTTP_201_CREATED)
+# class UnlockPack(APIView):
+#
+#     def get_object(self, pk):
+#         try:
+#             return RewardPack.objects.get(pk=pk)
+#         except RewardPack.DoesNotExist:
+#             raise Http404
+#
+#     def post(self, request, reward_pk, Format=None):
+#         userID = request.data['userID']
+#         pack = self.get_object(reward_pk)
+#         pack.unlockStartTime = int(time.time())
+#         pack.save()
+#         pack = PackSerializer(pack)
+#         return Response(pack.data, status=status.HTTP_201_CREATED)
 
 
 
