@@ -22,7 +22,6 @@ urlpatterns = [
     url(r'^card$', views.card),
     url(r'^bug_report$', views.bug_report),
     url(r'^bot_deck$', views.bot_deck),
-    url(r'^login$', views.Login.as_view()),
     url(r'^test$', views.Test.as_view()),
 ]
 
