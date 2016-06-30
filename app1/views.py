@@ -33,7 +33,7 @@ import json
 #     elif request.method == 'POST':
 #         data = request.data
 #         userID = data['userID']
-#         cardID = data['cardID']
+#         cardID = data['cardID']de
 #         cards = Card.objects.filter(user=userID).filter(cardType=cardID)
 #         if len(cards) != 1:
 #             return Response('card/user not found', status=status.HTTP_400_BAD_REQUEST)
@@ -197,7 +197,7 @@ def get_updates(request):
         user = None
         created = None
         if userID is None:
-            user, created = User.objects.get_or_create(deviecID=deviceID)
+            user, created = User.objects.get_or_create(deviceID=deviceID)
         else:
             user = User.objects.get(idUser=userID)
 #        if created:
