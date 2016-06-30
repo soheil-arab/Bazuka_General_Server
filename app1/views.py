@@ -154,7 +154,7 @@ def update_username(request):
         user.username = username
         user.save()
         highscore_lb = Leaderboard('Bazuka_V1')
-        highscore_lb.rank_member(user.username, user.trophy, user.idUser)
+        highscore_lb.rank_member(user.username, user.trophiesCount, user.idUser)
 
         responseData = {
             'userID': userID,
@@ -247,7 +247,7 @@ def update_match_result(request):
                 responseData = {
                     'user1': {
                         'userID': user.idUser,
-                        'trophy_sum': user.trophy,
+                        'trophy_sum': user.trophiesCount,
                         'trophy_diff': 0
                     },
                     'user2': {
@@ -263,19 +263,19 @@ def update_match_result(request):
                 udiff = None
                 if int(user1Score) > int(user2Score):
                     user.winCount += 1
-                    udiff = calculate_trophy(user.trophy, user.level, True, int(turn), scoreDiff)
-                    user.trophy += udiff
+                    udiff = calculate_trophy(user.trophiesCount, user.level, True, int(turn), scoreDiff)
+                    user.trophiesCount += udiff
                 else:
                     user.loseCount += 1
-                    udiff = calculate_trophy(user.trophy, user.level, False, int(turn), scoreDiff)
-                    user.trophy += udiff
+                    udiff = calculate_trophy(user.trophiesCount, user.level, False, int(turn), scoreDiff)
+                    user.trophiesCount += udiff
                 user.save()
                 highscore_lb = Leaderboard('Bazuka_V1')
-                highscore_lb.rank_member(user.username, user.trophy, user.idUser)
+                highscore_lb.rank_member(user.username, user.trophiesCount, user.idUser)
                 responseData = {
                     'user1': {
                         'userID': user.idUser,
-                        'trophy_sum': user.trophy,
+                        'trophy_sum': user.trophiesCount,
                         'trophy_diff': udiff
                     },
                     'user2': {
@@ -292,19 +292,19 @@ def update_match_result(request):
             udiff = None
             if int(user1Score) > int(user2Score):
                 user.winCount += 1
-                udiff = calculate_trophy(user.trophy, user.level, True, int(turn), scoreDiff)
-                user.trophy += udiff
+                udiff = calculate_trophy(user.trophiesCount, user.level, True, int(turn), scoreDiff)
+                user.trophiesCount += udiff
             else:
                 user.loseCount += 1
-                udiff = calculate_trophy(user.trophy, user.level, False, int(turn), scoreDiff)
-                user.trophy += udiff
+                udiff = calculate_trophy(user.trophiesCount, user.level, False, int(turn), scoreDiff)
+                user.trophiesCount += udiff
             user.save()
             highscore_lb = Leaderboard('Bazuka_V1')
-            highscore_lb.rank_member(user.username, user.trophy, user.idUser)
+            highscore_lb.rank_member(user.username, user.trophiesCount, user.idUser)
             responseData = {
                 'user1': {
                     'userID': user.idUser,
-                    'trophy_sum': user.trophy,
+                    'trophy_sum': user.trophiesCount,
                     'trophy_diff': udiff
                 },
                 'user2': {
@@ -322,38 +322,38 @@ def update_match_result(request):
             if int(user1Score) == -1 or int(user2Score) == -1:
                 user1.winCount += 1
                 u1diff = 20
-                user1.trophy += u1diff
+                user1.trophiesCount += u1diff
         
                 user2.loseCount += 1
                 u2diff = -10
-                if user2.trophy < 10:
-                    u2diff = -user2.trophy
-                user2.trophy += u2diff
+                if user2.trophiesCount < 10:
+                    u2diff = -user2.trophiesCount
+                user2.trophiesCount += u2diff
                 
             else:
                 user1.winCount += 1
-                u1diff = calculate_trophy(user1.trophy, user1.level, True, int(turn), scoreDiff)
-                user1.trophy += u1diff
+                u1diff = calculate_trophy(user1.trophiesCount, user1.level, True, int(turn), scoreDiff)
+                user1.trophiesCount += u1diff
         
                 user2.loseCount += 1
-                u2diff = calculate_trophy(user2.trophy, user2.level, False, int(turn), scoreDiff)
-                user2.trophy += u2diff
+                u2diff = calculate_trophy(user2.trophiesCount, user2.level, False, int(turn), scoreDiff)
+                user2.trophiesCount += u2diff
     
             user1.save()
             user2.save()
             highscore_lb = Leaderboard('Bazuka_V1')
-            highscore_lb.rank_member(user1.username, user1.trophy, user1.idUser)
-            highscore_lb.rank_member(user2.username, user2.trophy, user2.idUser)
+            highscore_lb.rank_member(user1.username, user1.trophiesCount, user1.idUser)
+            highscore_lb.rank_member(user2.username, user2.trophiesCount, user2.idUser)
 
             responseData = {
                 'user1': {
                     'userID': user1.idUser,
-                    'trophy_sum': user1.trophy,
+                    'trophy_sum': user1.trophiesCount,
                     'trophy_diff': u1diff
                 },
                 'user2': {
                     'userID': user2.idUser,
-                    'trophy_sum': user2.trophy,
+                    'trophy_sum': user2.trophiesCount,
                     'trophy_diff': u2diff
                 },
                 'winner': 0,
