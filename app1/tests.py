@@ -1,25 +1,21 @@
-from django.test import TestCase
+# import requests
+#
+#
+# # r = requests.post('http://localhost:8000/rest-auth/login/',{
+# #     "username": "behzad",
+# #     "password": "e100603ebfd7bc525059cfd2dac33a25"
+# # })
+# #
+# # print(r.json()['key'])
+# url = 'http://localhost:8000/rest-auth/user/'
+# # print(r.cookies.get_dict())
+#
+# r2 = requests.get(url,cookies={'csrftoken': 'yiYKeKoOzusgbxo9nUqkojdbg3fYS7q7', 'sessionid': '3sdprsg90gwd6z75cf2bk4inib5zlmhk'})
+# print(r2.json())
 
-# Create your tests here.
-import Crypto
-from Crypto.Signature import PKCS1_v1_5
-from Crypto.Hash import SHA256
-from Crypto.PublicKey import RSA
-from datetime import datetime
 
-
-
-msg = datetime.now().__str__()
-file = open('public.pem', 'r')
-pk = RSA.importKey(file.read())
-file = open('private.pem', 'r')
-sk = RSA.importKey(file.read())
-signer = PKCS1_v1_5.new(sk)
-h = SHA256.new(msg.encode())
-signature = signer.sign(h)
-verifier = PKCS1_v1_5.new(pk)
-h = SHA256.new(msg.encode())
-if verifier.verify(h, signature):
-    print('yes')
-else:
-    print('no')
+import uuid
+import base64
+from baseconv import base36
+# uuid = base64.b64encode(uuid.uuid4().bytes).replace('=', '')
+print(uuid.uuid4().hex)

@@ -1,24 +1,29 @@
-from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.http import JsonResponse
-from app1.models import User, Card, CardType, Clan, UserClanData#, RewardPack
-from django.contrib.auth.models import User as djangoUser
-import json
-from random import *
+from rest_framework.views import APIView
+from rest_framework import status
 
-from datetime import datetime
-from leaderboard.leaderboard import Leaderboard
+from django.http import JsonResponse, Http404
+
+from django.contrib.auth.models import User as djangoUser
+from django.contrib.auth import authenticate, login
+
 from django.core.exceptions import ObjectDoesNotExist
 
-from django.http import Http404
-from app1.serializers import UserSerializer, ClanSerializer#, PackSerializer
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-import time
+from app1 import serializers as serializer
+from app1.models import User, Card, CardType, Clan, UserClanData#, RewardPack
 import reward_conf
+
+from leaderboard.leaderboard import Leaderboard
+
+
+
+from datetime import datetime
+from random import *
+import time
 import hashlib
+import json
+
 # @api_view(['POST'])
 # def upgrade_card(request):
 
@@ -409,16 +414,16 @@ class MyEncoder(json.JSONEncoder):
 class UserList(APIView):
 
     def post(self, request, Format=None):
-        # uuid = request.data['uuid']
-        # password = uuid+'@{0}'.format(int(time.time() * 100))
-        # m = hashlib.md5()
-        # m.update(password.encode('utf-8'))
-        # password = m.hexdigest()
-        # user = djangoUser.objects.create_user(uuid, email=None, password=password)
-        # user = User.objects.create(basicUser=user)
-        # user = UserSerializer(user)
-        # return Response(user.data, status=status.HTTP_201_CREATED)
-        return Response({})
+        uuid = request.data['uuid']
+        print(uuid)
+        password = uuid+'@{0}'.format(int(time.time() * 100))
+        m = hashlib.md5()
+        m.update(password.encode('utf-8'))
+        password = m.hexdigest()
+        user = djangoUser.objects.create_user(uuid, email=None, password=password)
+        user = User.objects.create(basicUser=user)
+        user = serializer.SelfSerializer(user)
+        return Response({"uuid": uuid, "password": password}, status=status.HTTP_201_CREATED)
 
 class UserDetail(APIView):
     def get_object(self, pk):
@@ -429,7 +434,7 @@ class UserDetail(APIView):
 
     def get(self, request, pk, format=None):
         user = self.get_object(pk)
-        user = UserSerializer(user)
+        user = serializer.UserSerializer(user)
         return Response(user.data, status=status.HTTP_200_OK)
 
 
@@ -442,7 +447,7 @@ class ClanDetail(APIView):
 
     def get(self, request, pk, format=None):
         clan = self.get_object(pk)
-        clan = ClanSerializer(clan)
+        clan = serializer.ClanSerializer(clan)
         return Response(clan.data)
 
 
@@ -461,9 +466,9 @@ class ClanDetail(APIView):
 
 class ClanList(APIView):
     def post(self, request, format=None):
-        serializer = ClanSerializer(data=request.data)
-        if serializer.is_valid():
-            clan = serializer.save()#TODO: set clan creator to user --> auth
+        clan = serializer.ClanSerializer(data=request.data)
+        if clan.is_valid():
+            clanobj = clan.save()#TODO: set clan creator to user --> auth
             uid = request.data['userid']
             user = UserDetail.get_object(self=None, pk=uid)
             if user.clanData is None:
@@ -471,10 +476,10 @@ class ClanList(APIView):
                 user.clanData = clanData
             user.clanData.position = 1
             user.clanData.save()
-            user.userClan = clan
+            user.userClan = clanobj
             user.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(clan.data, status=status.HTTP_201_CREATED)
+        return Response(clan.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ClanMembership(APIView):
     def post(self, request, clan_pk, action, format=None):
@@ -491,7 +496,7 @@ class ClanMembership(APIView):
                 clanData = UserClanData.objects.create()
                 user.clanData = clanData
             user.save()
-            clan = ClanSerializer(clan)
+            clan = serializer.ClanSerializer(clan)
             return Response(clan.data, status=status.HTTP_201_CREATED)
         if action == "leave":
             uid = request.data['userid']
@@ -505,7 +510,7 @@ class ClanMembership(APIView):
                 user.clanData.position = 0
                 user.clanData.save()
                 user.save()
-                clan = ClanSerializer(clan)
+                clan = serializer.ClanSerializer(clan)
                 return Response(clan.data, status=status.HTTP_201_CREATED)
             else:
                 return Response("clanLeader can not leave the clan", status=status.HTTP_400_BAD_REQUEST)
@@ -581,6 +586,10 @@ class CardUpgrade(APIView):
 
 
 
+class Test(APIView):
+
+    def get(self, requset, Format=None):
+        return Response({"msg": requset.user.user.deck1})
 
 def num(s):
     try:

@@ -32,7 +32,7 @@ class User(models.Model):
     gem = models.IntegerField(default=0)
     gold = models.IntegerField(default=0)
     clanData = models.OneToOneField('app1.UserClanData', blank=True, null=True)
-    basicUser = models.OneToOneField(djangoUser, related_name='user', blank=True, null=True)
+    basicUser = models.OneToOneField(djangoUser, related_name='user', blank=True, null=True, unique=True)
 
     def __str__(self):
         return 'user_{0}@{1}'.format(self.idUser, self.username)
