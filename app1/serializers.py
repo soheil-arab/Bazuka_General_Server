@@ -17,7 +17,7 @@ class ClanUserSerializer(serializers.ModelSerializer):
         fields = ('idUser', 'username', 'level', 'trophiesCount', 'position', 'donate_count')
 
 class ClanSerializer(serializers.ModelSerializer):
-    users = ClanUserSerializer(many=True,required=False)
+    users = ClanUserSerializer(many=True,required=False,read_only=True)
 
     class Meta:
         model = Clan
