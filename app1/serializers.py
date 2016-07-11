@@ -22,7 +22,7 @@ class ClanSerializer(serializers.ModelSerializer):
     class Meta:
         model = Clan
         fields = ('idClan', 'clanName', 'clanDescription', 'clanLocation', 'clanType',
-                  'clanMinimumTrophies', 'clanScore', 'users')
+                  'clanMinimumTrophies', 'clanScore', 'users', 'clanBadge')
 
 
 

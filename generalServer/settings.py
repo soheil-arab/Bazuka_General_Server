@@ -98,3 +98,5 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = '/home/soheil/hexino.ir/Bazuka_General_Server/static'	
+
+
