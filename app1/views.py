@@ -14,14 +14,14 @@ from django.core.exceptions import ObjectDoesNotExist
 from app1 import serializers as serializer
 from app1.models import User, Card, CardType, Clan, UserClanData, RewardPack
 
-import reward_conf
 import app1.card_conf as cardConf
+import app1.utils as myUtils
 from leaderboard.leaderboard import Leaderboard
 
 
 
 from datetime import datetime
-from random import *
+import random
 import uuid
 import time
 import hashlib
@@ -378,9 +378,6 @@ class MyEncoder(json.JSONEncoder):
 
 class ClanMember(APIView):
     def post(self, request, clan_pk, action, format=None):
-        print(action)
-        print(type(clan_pk))
-        print(type(action))
         if action == "join":
             uid = request.data['userid']
             user = UserDetail.get_object(self=None, pk=uid)
@@ -438,7 +435,6 @@ class UserList(APIView):
             user = djangoUser.objects.create_user(username, email=None, password=password)
             return user
         except IntegrityError:
-            print('here')
             username = uuid.uuid4().hex[:29]
             return self.create_basic_user(username, password)
 
@@ -493,10 +489,11 @@ class ClanDetail(APIView):
 
 class CardUpgrade(APIView):
     def post(self, request, cardID, Format=None):
-        user = request.user.user
+        user = request.user
         if not user.is_authenticated():
             return Response({'detail': 'unauthorized request'}, status=status.HTTP_401_UNAUTHORIZED)
-        cards = Card.objects.filter(user=user.idUser).filter(cardType=cardID)
+        user = user.user
+        cards = Card.objects.filter(user=user.idUser).filter(cardType__Cardid=cardID)
         if len(cards) != 1:
             return Response({'detail': 'card/user not found'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -542,10 +539,12 @@ class Me(APIView):
     def get(self, request, Format=None):
         if request.user.is_authenticated():
             my_user = request.user.user
-            user = serializer.UserSerializer(my_user)
-            return Response(user.data, status=status.HTTP_200_OK)
-        else :
-            return  Response({},status=status.HTTP_401_UNAUTHORIZED)
+            user = serializer.MySerializer(my_user)
+            data = dict(user.data)
+            data['version'] = 1.1
+            return Response(data, status=status.HTTP_200_OK)
+        else:
+            return Response({'detail': 'unauthorized request'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class ClanMembership(APIView):
@@ -553,9 +552,6 @@ class ClanMembership(APIView):
     def post(self, request, clan_pk, action, format=None):
         if not request.user.is_authenticated():
             return Response({}, status=status.HTTP_401_UNAUTHORIZED)
-        print(action)
-        print(type(clan_pk))
-        print(type(action))
         if action == "join":
             user = request.user.user
             clan = ClanDetail.get_object(self=None, pk=clan_pk)
@@ -589,16 +585,18 @@ class ClanMembership(APIView):
 class Deck(APIView):
 
     def get(self, request, Format=None):
-        user = request.user.user
+        user = request.user
         if user.is_authenticated():
+            user = user.user
             deck_order = {'deck_order': user.deck1}
             return Response(deck_order, status=status.HTTP_200_OK)
         else:
             return Response({'detail': 'unauthorized request'}, status=status.HTTP_401_UNAUTHORIZED)
 
     def post(self, request, Format=None):
-        user = request.user.user
+        user = request.user
         if user.is_authenticated():
+            user = user.user
             deck_str = request.data['deck']
             deck_order = json.loads(deck_str)
             user.deck1 = deck_order
@@ -767,14 +765,6 @@ class MatchResult(APIView):
 
         return responseData
 
-def num(s):
-    try:
-        return int(s)
-    except ValueError:
-        return -1
-
-
-
 
 class UnpackReward(APIView):
     def get_object(self, pk):
@@ -784,29 +774,81 @@ class UnpackReward(APIView):
             raise Http404
 
     def post(self, request, reward_pk, Format=None):
-        user = request.user.user
+        user = request.user
         pack = self.get_object(reward_pk)
-        if int(time.time()) - pack.unlockStartTime < reward_conf.pack_wait_time[pack.packType]:
-            return Response({'detail': 'invalid unpack action'}, status=status.HTTP_400_BAD_REQUEST)
+        # TODO: uncomment delete line
+        # if int(time.time()) - pack.unlockStartTime < reward_conf.pack_wait_time[pack.packType]:
+        #     return Response({'detail': 'invalid unpack action'}, status=status.HTTP_400_BAD_REQUEST)
         if not user.is_authenticated():
             return Response({'detail': 'unauthorized request'}, status=status.HTTP_401_UNAUTHORIZED)
-
-        gold, total_card = self.reward(pack.packType, pack.packLevel)
+        user = user.user
+        # TODO: uncomment delete line
+        # pack.delete()
+        gold, cards = self.open_pack(pack)
+        card_obj_list = user.add_cards(cards)
         user.gold += gold
-
-        pack.delete()
         user.save()
-        return Response({}, status=status.HTTP_200_CREATED)
-
-    def reward(self, packType, level):
-        gold = randrange(reward_conf.PackTotalCards[packType][level][1],
-                         reward_conf.PackTotalCards[packType][level][2])
-        total_card = reward_conf.PackTotalCards[packType][level][0]
-        return gold, total_card
+        cards_data = []
+        for card in card_obj_list:
+            cs = serializer.CardSerializer(card)
+            tmp_data = dict(cs.data)
+            tmp_data['earned_card'] = cards[card.cardType.Cardid]
+            if tmp_data['earned_card'] is tmp_data['cardCount'] and tmp_data['cardLevel'] is 0:
+                tmp_data['isNewCard'] = 1
+            cards_data.append(tmp_data)
+        return Response({'gold': gold, 'cards': cards_data, 'gem': 0}, status=status.HTTP_200_OK)
 
     def get_or_create_card(self, card_type, user_id):
         card_obj, created = Card.objects.get_or_create(user=user_id, cardType=card_type)
         return card_obj
+
+    def open_pack(self, pack):
+        number_of_cards, min_golds, max_golds, rare_exp, epic_exp, type_count = cardConf.CardPack.pack_info(pack.packType, pack.packLeagueLevel)
+        gold = random.randrange(min_golds, max_golds)
+        cards = dict()
+        available_cards, cards_prob = CardType.get_available_cards(pack.packLeagueLevel)
+        available_epic_cards, available_epic_rare_cards = CardType.get_available_epic_rare_cards(pack.packLeagueLevel)
+        remained_card_types = type_count
+        if epic_exp > 0:
+            epic_card = self.pick_one_card(available_epic_cards, cards_prob)
+            # TODO: add serialized data here
+            cards[epic_card] = epic_exp
+            available_cards.remove(epic_card)
+            remained_card_types -= 1
+
+        if rare_exp > 0 :
+            rare_card = self.pick_one_card(available_epic_rare_cards, cards_prob)
+            # TODO: add serialized data here
+            cards[rare_card] = rare_exp
+            available_cards.remove(rare_card)
+            remained_card_types -= 1
+
+        while remained_card_types > 0 :
+            card = self.pick_one_card(available_cards, cards_prob)
+            cards[card] = 0
+            available_cards.remove(card)
+            remained_card_types -= 1
+        for i in range(0, number_of_cards - rare_exp - epic_exp):
+            key_list = list(cards.keys())
+            key = self.pick_one_card(key_list, cards_prob)
+            cards[key] += 1
+        return gold, cards
+
+    @staticmethod
+    def pick_one_card(cards, cards_prob):
+        prob_list = list()
+        for card in cards:
+            prob_list.append(cards_prob[card])
+        idx = myUtils.get_random_index(prob_list)
+        return cards[idx]
+
+
+def num(s):
+    try:
+        return int(s)
+    except ValueError:
+        return -1
+
 
 
 # class UnlockPack(APIView):

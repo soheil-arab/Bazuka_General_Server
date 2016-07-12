@@ -25,7 +25,7 @@ urlpatterns = [
     #   register new user
     url(r'^v2/users/$', views.UserList.as_view()),
     #   get other user info
-    url(r'^users/(?P<pk>[0-9]+)/$', views.UserDetail.as_view()),
+    url(r'^v2/users/(?P<pk>[0-9]+)/$', views.UserDetail.as_view()),
 
     #   set username
     url(r'^v2/me/username/$', views.SetUsername.as_view()),
@@ -44,5 +44,10 @@ urlpatterns = [
     #   update match result
     url(r'^v2/rooms/(?P<roomID>[a-z0-9]+)/result$', views.MatchResult.as_view()),
 
+    #   unpack reward
+    url(r'^v2/me/pack/(?P<reward_pk>[0-9]+/$)', views.UnpackReward.as_view()),
+
+    #   card upgrade
+    url(r'^v2/cards/(?P<cardID>[0-9]+)/$', views.CardUpgrade.as_view())
 ]
 

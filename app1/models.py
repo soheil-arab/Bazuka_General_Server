@@ -132,6 +132,30 @@ class User(models.Model):
         }
         return data
 
+    def add_cards(self, earned_cards):
+        cards = []
+        for card_type in earned_cards:
+            try:
+                cardT = CardType.objects.get(Cardid=card_type)
+            except CardType.DoesNotExist:
+                print('fuck you')
+                return None
+
+            try:
+                x = self.cards.all().get(cardType=cardT)
+                x.cardCount += earned_cards[card_type]
+                print('old card')
+            except Card.DoesNotExist:
+                x = Card()
+                x.cardCount = earned_cards[card_type]
+                x.cardLevel = 0
+                x.cardType = cardT
+                x.user = self
+                print('new card')
+            x.save()
+            cards.append(x)
+        return cards
+
     @staticmethod
     def level_xp_relation(level):
         if level >= 11:
@@ -171,6 +195,7 @@ class User(models.Model):
         }
         return x[league]
 
+
 class CardType(models.Model):
     idCardType = models.AutoField(primary_key=True)
     Cardid = models.IntegerField(unique=True, db_index=True, null=True)
@@ -181,21 +206,42 @@ class CardType(models.Model):
     def __str__(self):
         return self.cardName
 
-    def get_available_cards(self, leagueLevel):
-        return CardType.objects.filter(cardLeagueLevel__lte=leagueLevel)
+    @staticmethod
+    def get_available_cards(leagueLevel):
+        card_list = CardType.objects.filter(cardLeagueLevel__lte=leagueLevel)
+        avail_cards = list()
+        cards_prob = dict()
+        for card in card_list:
+            avail_cards.append(card.Cardid)
+            cards_prob[card.Cardid] = probability_by_rarity(card.cardRarity)
+        return avail_cards, cards_prob
 
-    def get_league_cards(self, leagueLevel):
+    @staticmethod
+    def get_available_epic_rare_cards(leagueLevel):
+        rare = CardType.objects.filter(cardLeagueLevel__lte=leagueLevel).filter(cardRarity__gte=1)
+        rare_list = list()
+        for card in rare:
+            rare_list.append(card.Cardid)
+        epic = rare.filter(cardRarity__gte=2)
+        epic_list = list()
+        for card in epic:
+            epic_list.append(card.Cardid)
+        return epic_list, rare_list
+
+    @staticmethod
+    def get_league_cards(leagueLevel):
         return CardType.objects.filter(cardLeagueLevel=leagueLevel)
 
-    def get_available_cards_with_prob(self, leagueLevel):
-        cards = self.get_available_cards(leagueLevel)
-        total = 0
-        for card in cards:
-            total += probability_by_rarity(card.cardRarity)
-        prob_list = list()
-        for card in cards:
-            prob_list.append(probability_by_rarity(card.cardRarity)/total)
-        return cards, prob_list
+    # @staticmethod
+    # def get_available_cards_with_prob(leagueLevel):
+    #     cards = CardType.get_available_cards(leagueLevel)
+    #     total = 0
+    #     for card in cards:
+    #         total += probability_by_rarity(card.cardRarity)
+    #     prob_list = list()
+    #     for card in cards:
+    #         prob_list.append(probability_by_rarity(card.cardRarity)/total)
+    #     return cards, prob_list
 
 class Clan(models.Model):
     idClan = models.AutoField(primary_key=True)
