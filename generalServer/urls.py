@@ -1,12 +1,10 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, url
 from django.contrib import admin
+from rest_framework_jwt.views import obtain_jwt_token, verify_jwt_token
 
 urlpatterns = [
-   # Examples:
-   # url(r'^$', 'generalServer.views.home', name='home'),
-   # url(r'^blog/', include('blog.urls')),
-   url(r'^rest-auth/', include('rest_auth.urls')),
+   url(r'^api-token-auth/', obtain_jwt_token),
+   url(r'^api-token-verify', verify_jwt_token),
    url(r'^admin/', include(admin.site.urls)),
-   url(r'^rest/', include('app1.urls'))
-
+   url(r'^rest/', include('app1.urls')),
 ]

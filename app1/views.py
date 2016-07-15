@@ -1,3 +1,4 @@
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -7,7 +8,7 @@ from django.http import JsonResponse, Http404
 from django.db import IntegrityError
 
 from django.contrib.auth.models import User as djangoUser
-from django.contrib.auth import authenticate, login
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -376,12 +377,53 @@ class MyEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
+class ClanList(APIView):
+
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = (JSONWebTokenAuthentication, )
+
+    def post(self, request, format=None):
+        clan = serializer.ClanSerializer(data=request.data)
+        if clan.is_valid():
+            clanobj = clan.save()
+            user = request.user.user
+            if user.clanData is None:
+                clanData = UserClanData.objects.create()
+                user.clanData = clanData
+            user.clanData.position = 1
+            user.clanData.save()
+            user.userClan = clanobj
+            user.save()
+            return Response(clan.data, status=status.HTTP_201_CREATED)
+        return Response(clan.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ClanDetail(APIView):
+
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = (JSONWebTokenAuthentication, )
+
+    @staticmethod
+    def get_object(pk):
+        try:
+            return Clan.objects.get(pk=pk)
+        except Clan.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        clan = self.get_object(pk)
+        clan = serializer.ClanSerializer(clan)
+        return Response(clan.data)
+
+
 class ClanMember(APIView):
+
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = (JSONWebTokenAuthentication, )
+
     def post(self, request, clan_pk, action, format=None):
         if action == "join":
-            uid = request.data['userid']
-            user = UserDetail.get_object(self=None, pk=uid)
-            clan = ClanDetail.get_object(self=None, pk=clan_pk)
+            user = request.user.user
+            clan = ClanDetail.get_object(pk=clan_pk)
             user.userClan = clan
             #TODO: update score and other things
             if user.clanData is None:
@@ -391,10 +433,9 @@ class ClanMember(APIView):
             clan = serializer.ClanSerializer(clan)
             return Response(clan.data, status=status.HTTP_201_CREATED)
         if action == "leave":
-            uid = request.data['userid']
-            user = UserDetail.get_object(self=None, pk=uid)
-            clan = ClanDetail.get_object(self=None, pk=clan_pk)
-            if uid != str(user.userClan):
+            user = request.user.user
+            clan = ClanDetail.get_object(pk=clan_pk)
+            if user.userClan == clan:
                 user.userClan = None
                 #TODO: update score and other things
                 user.clanData.donate_count = 0
@@ -402,10 +443,9 @@ class ClanMember(APIView):
                 user.clanData.position = 0
                 user.clanData.save()
                 user.save()
-                clan = serializer.ClanSerializer(clan)
-                return Response(clan.data, status=status.HTTP_201_CREATED)
+                return Response({}, status=status.HTTP_200_OK)
             else:
-                return Response({'detail': "clanLeader can not leave the clan"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'detail': "you are not member of this clan"}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({'detail': "invalid action"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -413,6 +453,10 @@ class ClanMember(APIView):
 
 
 class UserList(APIView):
+
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = (JSONWebTokenAuthentication, )
+
     #TODO: verify real client
     def post(self, request, Format=None):
         """
@@ -455,44 +499,16 @@ class UserDetail(APIView):
         user = serializer.UserSerializer(user)
         return Response(user.data, status=status.HTTP_200_OK)
 
-class ClanList(APIView):
-    def post(self, request, format=None):
-        clan = serializer.ClanSerializer(data=request.data)
-        if clan.is_valid():
-            clanobj = clan.save()#TODO: set clan creator to user --> auth
-            uid = request.data['userid']
-            user = UserDetail.get_object(self=None, pk=uid)
-            if user.clanData is None:
-                clanData = UserClanData.objects.create()
-                user.clanData = clanData
-            user.clanData.position = 1
-            user.clanData.save()
-            user.userClan = clanobj
-            user.save()
-            return Response(clan.data, status=status.HTTP_201_CREATED)
-        return Response(clan.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class ClanDetail(APIView):
-    @staticmethod
-    def get_object(pk):
-        try:
-            return Clan.objects.get(pk=pk)
-        except Clan.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk, format=None):
-        clan = self.get_object(pk)
-        clan = serializer.ClanSerializer(clan)
-        return Response(clan.data)
 
 
 
 class CardUpgrade(APIView):
+
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = (JSONWebTokenAuthentication, )
+
     def post(self, request, cardID, Format=None):
-        user = request.user
-        if not user.is_authenticated():
-            return Response({'detail': 'unauthorized request'}, status=status.HTTP_401_UNAUTHORIZED)
-        user = user.user
+        user = request.user.user
         cards = Card.objects.filter(user=user.idUser).filter(cardType__Cardid=cardID)
         if len(cards) != 1:
             return Response({'detail': 'card/user not found'}, status=status.HTTP_400_BAD_REQUEST)
@@ -523,9 +539,11 @@ class CardUpgrade(APIView):
 
 class SetUsername(APIView):
 
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = (JSONWebTokenAuthentication, )
+
     def post(self, requset, Format=None):
-        if not requset.user.is_authenticated():
-            return Response({}, status=status.HTTP_401_UNAUTHORIZED)
+
         username = requset.data['username']
         user = requset.user.user
         user.username = username
@@ -536,22 +554,23 @@ class SetUsername(APIView):
 
 class Me(APIView):
 
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = (JSONWebTokenAuthentication, )
+
     def get(self, request, Format=None):
-        if request.user.is_authenticated():
-            my_user = request.user.user
-            user = serializer.MySerializer(my_user)
-            data = dict(user.data)
-            data['version'] = 1.1
-            return Response(data, status=status.HTTP_200_OK)
-        else:
-            return Response({'detail': 'unauthorized request'}, status=status.HTTP_401_UNAUTHORIZED)
+        my_user = request.user.user
+        user = serializer.MySerializer(my_user)
+        data = dict(user.data)
+        data['version'] = 1.1
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class ClanMembership(APIView):
 
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = (JSONWebTokenAuthentication, )
+
     def post(self, request, clan_pk, action, format=None):
-        if not request.user.is_authenticated():
-            return Response({}, status=status.HTTP_401_UNAUTHORIZED)
         if action == "join":
             user = request.user.user
             clan = ClanDetail.get_object(self=None, pk=clan_pk)
@@ -584,26 +603,21 @@ class ClanMembership(APIView):
 
 class Deck(APIView):
 
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = (JSONWebTokenAuthentication, )
+
     def get(self, request, Format=None):
-        user = request.user
-        if user.is_authenticated():
-            user = user.user
-            deck_order = {'deck_order': user.deck1}
-            return Response(deck_order, status=status.HTTP_200_OK)
-        else:
-            return Response({'detail': 'unauthorized request'}, status=status.HTTP_401_UNAUTHORIZED)
+        user = request.user.user
+        deck_order = {'deck_order': user.deck1}
+        return Response(deck_order, status=status.HTTP_200_OK)
 
     def post(self, request, Format=None):
-        user = request.user
-        if user.is_authenticated():
-            user = user.user
-            deck_str = request.data['deck']
-            deck_order = json.loads(deck_str)
-            user.deck1 = deck_order
-            user.save()
-            return Response({}, status=status.HTTP_206_PARTIAL_CONTENT)#TODO: response
-        else:
-            return Response({'detail': 'unauthorized request'}, status=status.HTTP_401_UNAUTHORIZED)
+        user = request.user.user
+        deck_str = request.data['deck']
+        deck_order = json.loads(deck_str)
+        user.deck1 = deck_order
+        user.save()
+        return Response({}, status=status.HTTP_206_PARTIAL_CONTENT)#TODO: response
 
 
 class MatchResult(APIView):
@@ -722,13 +736,13 @@ class MatchResult(APIView):
         if int(user1['score']) == -1 or int(user2['score']) == -1:#TODO: someone left the match
             user1_obj.winCount += 1
             u1diff = 20
-            user1_obj.trophiesCount += u1diff
+            u1_trophy_data = user1_obj.add_trophy(u1diff)
 
             user2_obj.loseCount += 1
             u2diff = -10
             if user2_obj.trophiesCount < 10:
                 u2diff = -user2_obj.trophiesCount
-            user2_obj.trophiesCount += u2diff
+            u2_trophy_data = user2_obj.add_trophy(u2diff)
         else:
             u1diff, u2diff = calculate_trophy(user1_obj.trophiesCount, user2_obj.trophiesCount)
             user1_obj.winCount += 1
@@ -755,8 +769,7 @@ class MatchResult(APIView):
             },
             'user2': {
                 'userID': user2_obj.idUser,
-                'trophy_sum': user2_obj.trophiesCount,
-                'trophy_diff': -u2diff
+                'trophy_data': u2_trophy_data
             },
             'winner': 0,
             'roomID': match_info['roomID']
@@ -767,6 +780,10 @@ class MatchResult(APIView):
 
 
 class UnpackReward(APIView):
+
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = (JSONWebTokenAuthentication, )
+
     def get_object(self, pk):
         try:
             return RewardPack.objects.get(pk=pk)
@@ -774,14 +791,11 @@ class UnpackReward(APIView):
             raise Http404
 
     def post(self, request, reward_pk, Format=None):
-        user = request.user
+        user = request.user.user
         pack = self.get_object(reward_pk)
-        # TODO: uncomment delete line
+        # TODO: uncomment time check lines
         # if int(time.time()) - pack.unlockStartTime < reward_conf.pack_wait_time[pack.packType]:
         #     return Response({'detail': 'invalid unpack action'}, status=status.HTTP_400_BAD_REQUEST)
-        if not user.is_authenticated():
-            return Response({'detail': 'unauthorized request'}, status=status.HTTP_401_UNAUTHORIZED)
-        user = user.user
         # TODO: uncomment delete line
         # pack.delete()
         gold, cards = self.open_pack(pack)
