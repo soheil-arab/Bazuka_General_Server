@@ -454,8 +454,8 @@ class ClanMember(APIView):
 
 class UserList(APIView):
 
-    permission_classes = (IsAuthenticated, )
-    authentication_classes = (JSONWebTokenAuthentication, )
+    # permission_classes = (IsAuthenticated, )
+    # authentication_classes = (JSONWebTokenAuthentication, )
 
     #TODO: verify real client
     def post(self, request, Format=None):
