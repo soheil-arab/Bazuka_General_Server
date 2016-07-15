@@ -1,10 +1,13 @@
 __author__ = 'soheil'
 from django.conf.urls import url
 from . import views
+from rest_framework_jwt.views import obtain_jwt_token, verify_jwt_token
 
 app_name = 'app1'
 
 urlpatterns = [
+    url(r'^api-token-auth/', obtain_jwt_token),
+    url(r'^api-token-verify/', verify_jwt_token),
 
     url(r'^users/$', views.UserList.as_view()),
     url(r'^users/(?P<pk>[0-9]+)/$', views.UserDetail.as_view()),
