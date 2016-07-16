@@ -51,6 +51,17 @@ class UserSerializer(serializers.ModelSerializer):
     clan_name = serializers.CharField(source='userClan.clanName', read_only=True)
     clan_id = serializers.IntegerField(source='userClan.idClan', read_only=True)
     cards = CardSerializer(many=True)
+
+    class Meta:
+        model = User
+        fields = ('idUser', 'username', 'winCount', 'loseCount', 'deck1', 'xp', 'level', 'clan_id',
+                  'clan_name', 'totalDonations', 'trophiesCount', 'leagueLevel', 'cards', 'gold', 'gem')
+
+
+class SelfSerializer(serializers.ModelSerializer):
+    clan_name = serializers.CharField(source='userClan.clanName', read_only=True)
+    clan_id = serializers.IntegerField(source='userClan.idClan', read_only=True)
+    cards = CardSerializer(many=True)
     next_level_xp = serializers.SerializerMethodField('next_xp')
     next_league_trophy = serializers.SerializerMethodField('next_trophy')
 
@@ -66,26 +77,6 @@ class UserSerializer(serializers.ModelSerializer):
                   'clan_name', 'totalDonations', 'trophiesCount', 'leagueLevel', 'next_league_trophy', 'cards', 'gold',
                   'gem')
 
-
-class SelfSerializer(serializers.ModelSerializer):
-    clan_name = serializers.CharField(source='userClan.clanName', read_only=True)
-    clan_id = serializers.IntegerField(source='userClan.idClan', read_only=True)
-    cards = CardSerializer(many=True)
-
-    class Meta:
-        model = User
-        fields = ('idUser', 'username', 'cards', 'trophiesCount', 'winCount', 'loseCount', 'deck1', 'xp', 'level',
-                  'clan_id', 'clan_name', 'totalDonations', 'basicUser')
-class MySerializer(serializers.ModelSerializer):
-
-    clan_name = serializers.CharField(source='userClan.clanName', read_only=True)
-    clan_id = serializers.IntegerField(source='userClan.idClan', read_only=True)
-    cards = CardSerializer(many=True)
-
-    class Meta:
-        model = User
-        fields = ('idUser', 'username', 'cards', 'trophiesCount', 'winCount', 'loseCount', 'deck1', 'xp', 'level',
-                  'clan_id', 'clan_name', 'totalDonations', 'leagueLevel', 'gem', 'gold')
 # class PackSerializer(serializers.ModelSerializer):
 #
 #     class Meta:

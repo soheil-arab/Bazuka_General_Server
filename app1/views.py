@@ -561,7 +561,7 @@ class Me(APIView):
         my_user = request.user.user
         user = serializer.MySerializer(my_user)
         data = dict(user.data)
-        data['version'] = 1.1
+        data['version'] = '1.1'
         return Response(data, status=status.HTTP_200_OK)
 
 
