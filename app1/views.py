@@ -525,12 +525,12 @@ class CardUpgrade(APIView):
             return Response({'detail': 'not enough golds'}, status=status.HTTP_400_BAD_REQUEST)
         card.cardLevel += 1
         card.cardCount -= required_cards
-        user.gold -= required_gold
+        gold_data = user.add_gold(-required_gold)
         xp_data = user.add_xp(xp)
         user.save()
         card.save()
         response_data = {'userID': user.idUser, 'cardTypeID': cardID, 'cardLevel': card.cardLevel,
-                         'cardCount': card.cardCount, 'xp': xp_data, 'upgrade_gold_cost': required_gold,
+                         'cardCount': card.cardCount, 'xp': xp_data, 'user_gold': gold_data,
                          'next_gold': cardConf.CardUpgrade.required_golds(card.cardLevel, card.cardType.cardRarity),
                          'next_card_count': cardConf.CardUpgrade.required_cards(card.cardLevel)
                          }
