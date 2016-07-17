@@ -109,7 +109,7 @@ class User(models.Model):
             'user_earned_xp': earned_xp,
             'user_level_up': 1 if level_up else 0
         }
-        return level_up, data
+        return data
 
     def add_trophy(self, earned_trophy):
         self.trophiesCount += earned_trophy
