@@ -152,9 +152,25 @@ class User(models.Model):
                 x.cardType = cardT
                 x.user = self
                 print('new card')
-            x.save()
+            # x.save()
             cards.append(x)
         return cards
+
+    def add_gold(self, earned_gold):
+        self.gold += earned_gold
+        data = {
+            'earned_gold': earned_gold,
+            'user_gold': self.gold
+        }
+        return data
+
+    def add_gem(self, earned_gem):
+        self.gem += earned_gem
+        data = {
+            'earned_gem': earned_gem,
+            'user_gem': self.gem
+        }
+        return data
 
     @staticmethod
     def level_xp_relation(level):

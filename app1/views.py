@@ -526,11 +526,11 @@ class CardUpgrade(APIView):
         card.cardLevel += 1
         card.cardCount -= required_cards
         user.gold -= required_gold
-        user.xp += xp
+        xp_data = user.add_xp(xp)
         user.save()
         card.save()
         response_data = {'userID': user.idUser, 'cardTypeID': cardID, 'cardLevel': card.cardLevel,
-                         'cardCount': card.cardCount, 'excess_xp': xp, 'upgrade_gold_cost': required_gold,
+                         'cardCount': card.cardCount, 'xp': xp_data, 'upgrade_gold_cost': required_gold,
                          'next_gold': cardConf.CardUpgrade.required_golds(card.cardLevel, card.cardType.cardRarity),
                          'next_card_count': cardConf.CardUpgrade.required_cards(card.cardLevel)
                          }
@@ -798,9 +798,11 @@ class UnpackReward(APIView):
         #     return Response({'detail': 'invalid unpack action'}, status=status.HTTP_400_BAD_REQUEST)
         # TODO: uncomment delete line
         # pack.delete()
+        gem = 0
         gold, cards = self.open_pack(pack)
         card_obj_list = user.add_cards(cards)
-        user.gold += gold
+        gold_data = user.add_gold(gold)
+        gem_data = user.add_gem(gem)
         user.save()
         cards_data = []
         for card in card_obj_list:
@@ -810,7 +812,7 @@ class UnpackReward(APIView):
             if tmp_data['earned_card'] is tmp_data['cardCount'] and tmp_data['cardLevel'] is 0:
                 tmp_data['isNewCard'] = 1
             cards_data.append(tmp_data)
-        return Response({'gold': gold, 'cards': cards_data, 'gem': 0}, status=status.HTTP_200_OK)
+        return Response({'gold': gold_data, 'cards': cards_data, 'gem': gem_data}, status=status.HTTP_200_OK)
 
     def get_or_create_card(self, card_type, user_id):
         card_obj, created = Card.objects.get_or_create(user=user_id, cardType=card_type)
