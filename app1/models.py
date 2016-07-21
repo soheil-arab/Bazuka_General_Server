@@ -154,7 +154,8 @@ class User(models.Model):
                 x.cardType = cardT
                 x.user = self
                 print('new card')
-                x.save()
+
+            x.save()
             cards.append(x)
         return cards
 
