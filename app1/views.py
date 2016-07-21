@@ -17,6 +17,8 @@ from app1.models import User, Card, CardType, Clan, UserClanData, RewardPack
 
 import app1.card_conf as cardConf
 import app1.utils as myUtils
+from app1.serializers import CardSerializer
+
 from leaderboard.leaderboard import Leaderboard
 
 
@@ -525,15 +527,19 @@ class CardUpgrade(APIView):
             return Response({'detail': 'not enough golds'}, status=status.HTTP_400_BAD_REQUEST)
         card.cardLevel += 1
         card.cardCount -= required_cards
-        user.gold -= required_gold
+        gold_data = user.add_gold(-required_gold)
         xp_data = user.add_xp(xp)
         user.save()
         card.save()
-        response_data = {'userID': user.idUser, 'cardTypeID': cardID, 'cardLevel': card.cardLevel,
-                         'cardCount': card.cardCount, 'xp': xp_data, 'upgrade_gold_cost': required_gold,
-                         'next_gold': cardConf.CardUpgrade.required_golds(card.cardLevel, card.cardType.cardRarity),
-                         'next_card_count': cardConf.CardUpgrade.required_cards(card.cardLevel)
-                         }
+        card_data = CardSerializer(card).data
+
+        # response_data = {'userID': user.idUser, 'cardTypeID': cardID, 'cardLevel': card.cardLevel,
+        #                  'cardCount': card.cardCount, 'xp': xp_data, 'upgrade_gold_cost': required_gold,
+        #                  'next_gold': cardConf.CardUpgrade.required_golds(card.cardLevel, card.cardType.cardRarity),
+        #                  'next_card_count': cardConf.CardUpgrade.required_cards(card.cardLevel)
+        #                  }
+        response_data = {'card': card_data, 'xp': xp_data, 'gold': gold_data}
+
         return Response(response_data, status=status.HTTP_200_OK)
 
 
@@ -562,6 +568,7 @@ class Me(APIView):
         user = serializer.SelfSerializer(my_user)
         data = dict(user.data)
         data['version'] = '1.1'
+        data['gem_time_ratio'] = 1
         return Response(data, status=status.HTTP_200_OK)
 
 
@@ -784,20 +791,22 @@ class UnpackReward(APIView):
     permission_classes = (IsAuthenticated, )
     authentication_classes = (JSONWebTokenAuthentication, )
 
-    def get_object(self, pk):
-        try:
-            return RewardPack.objects.get(pk=pk)
-        except RewardPack.DoesNotExist:
-            raise Http404
-
     def post(self, request, reward_pk, Format=None):
         user = request.user.user
-        pack = self.get_object(reward_pk)
-        # TODO: uncomment time check lines
-        # if int(time.time()) - pack.unlockStartTime < reward_conf.pack_wait_time[pack.packType]:
-        #     return Response({'detail': 'invalid unpack action'}, status=status.HTTP_400_BAD_REQUEST)
+        pack = RewardPack.get_object(reward_pk)
+        if pack.packUser.idUser != user.idUser:
+            return Response({'detail': 'it\'s not your pack:D '}, status=status.HTTP_406_NOT_ACCEPTABLE)
+        pack_time = cardConf.CardPack.pack_time(pack.packType, 'S')
+        spend_time = int(time.time()) - pack.unlockStartTime
+        if pack.unlockStartTime is -1:
+            return Response({'detail': '{0} seconds remain to unlock pack'.format(pack_time)},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if spend_time < pack_time:
+            return Response({'detail': '{0} seconds remain to unlock pack'.format(pack_time - spend_time)},
+                            status=status.HTTP_400_BAD_REQUEST)
         # TODO: uncomment delete line
         # pack.delete()
+        # user.packEmptySlots[pack.slotNumber] = 1
         gem = 0
         gold, cards = self.open_pack(pack)
         card_obj_list = user.add_cards(cards)
@@ -867,18 +876,21 @@ def num(s):
 
 
 
-# class UnlockPack(APIView):
-#
-#     def get_object(self, pk):
-#         try:
-#             return RewardPack.objects.get(pk=pk)
-#         except RewardPack.DoesNotExist:
-#             raise Http404
-#
-#     def post(self, request, reward_pk, Format=None):
-#         userID = request.data['userID']
-#         pack = self.get_object(reward_pk)
-#         pack.unlockStartTime = int(time.time())
-#         pack.save()
-#         pack = PackSerializer(pack)
-#         return Response(pack.data, status=status.HTTP_201_CREATED)
+class UnlockPack(APIView):
+
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = (JSONWebTokenAuthentication, )
+
+    def post(self, request, reward_pk, Format=None):
+        pack = RewardPack.get_object(reward_pk)
+        user = request.user.user
+        user_packs = user.rewardPacks.all()
+        for pack in user_packs:
+            if pack.unlockStartTime is not -1:
+                return Response({'detail': 'another unlock in progress'}, status=status.HTTP_406_NOT_ACCEPTABLE)
+        if pack.packUser.idUser != user.idUser:
+            return Response({'detail': 'it\'s not your pack:D '}, status=status.HTTP_406_NOT_ACCEPTABLE)
+        pack.unlockStartTime = int(time.time())
+        pack.save()
+        pack = serializer.PackSerializer(pack)
+        return Response(pack.data, status=status.HTTP_200_OK)

@@ -91,4 +91,24 @@ class CardPack:
         return number_of_cards[league_level], min_golds[league_level], max_golds[league_level],rare_exp[league_level],\
                epic_exp[league_level], type_count[league_level]
 
-
+    @staticmethod
+    def pack_time(pack_type, scale='H'):
+        r = None
+        if pack_type is 1:
+            r = 3
+        elif pack_type is 2:
+            r = 7
+        elif pack_type is 3:
+            r = 10
+        elif pack_type is 4:
+            r = 12
+        elif pack_type is 5:
+            r = 16
+        elif pack_type is 2:
+            r = 24
+        if scale is 'H':
+            return r
+        elif scale is 'M':
+            return r*60
+        elif scale is 'S':
+            return r*60*60

@@ -27,6 +27,7 @@ def probability_by_rarity(rarity):
         2: 1
     }
     return rarity_map[rarity]
+
 class User(models.Model):
     idUser = models.AutoField(primary_key=True)
     deviceID = models.CharField(max_length=200, blank=True, null=True)
@@ -51,6 +52,7 @@ class User(models.Model):
     packCycle = ArrayField(models.IntegerField(), size=6, default=default_pack_cycle)
     kingHP = models.SmallIntegerField(default=200)
     packCount = models.SmallIntegerField(default=0)
+    packEmptySlots = ArrayField(models.IntegerField(), size=4, default=[1, 1, 1, 1])
 
     def __str__(self):
         return 'user_{0}@{1}'.format(self.idUser, self.username)
@@ -96,7 +98,7 @@ class User(models.Model):
         next_xp = self.level_xp_relation(self.level+1)
         self.xp += earned_xp
         level_up = False
-        if self.xp >= next_xp != -1:
+        if self.xp >= next_xp > -1:
             level_up = True
             self.level += 1
             self.xp -= next_xp
@@ -109,7 +111,7 @@ class User(models.Model):
             'user_earned_xp': earned_xp,
             'user_level_up': 1 if level_up else 0
         }
-        return level_up, data
+        return data
 
     def add_trophy(self, earned_trophy):
         self.trophiesCount += earned_trophy
@@ -152,7 +154,7 @@ class User(models.Model):
                 x.cardType = cardT
                 x.user = self
                 print('new card')
-            # x.save()
+                x.save()
             cards.append(x)
         return cards
 
@@ -280,6 +282,15 @@ class RewardPack(models.Model):
     unlockStartTime = models.IntegerField(default=-1)
     packLeagueLevel = models.IntegerField(default=0)
     packUser = models.ForeignKey('app1.User', on_delete=models.CASCADE, related_name='rewardPacks')
+    slotNumber = models.IntegerField(blank=True, null=True)
+
+    @staticmethod
+    def get_object(pk):
+        try:
+            return RewardPack.objects.get(pk=pk)
+        except RewardPack.DoesNotExist:
+            raise Http404
+
 
 class Card(models.Model):
     idCard = models.AutoField(primary_key=True)
