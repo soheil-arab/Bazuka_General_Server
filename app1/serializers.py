@@ -78,7 +78,7 @@ class PackSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RewardPack
-        fields = ('idPack', 'packType', 'pack_remaining_time', 'pack_unlock_time', 'packLeagueLevel', 'slotNumber')
+        fields = ('idPack', 'packType', 'pack_remaining_time', 'pack_unlock_time', 'packLeagueLevel', 'slotNumber', 'pack_content_info')
 
 
 class UserSerializer(serializers.ModelSerializer):
