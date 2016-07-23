@@ -97,8 +97,16 @@ class SelfSerializer(serializers.ModelSerializer):
     clan_id = serializers.IntegerField(source='userClan.idClan', read_only=True)
     cards = CardSerializer(many=True)
     rewardPacks = PackSerializer(many=True)
-    xp_data = serializers.SerializerMethodField()
-    trophy_data = serializers.SerializerMethodField()
+    # xp_data = serializers.SerializerMethodField()
+    # trophy_data = serializers.SerializerMethodField()
+    next_level_xp = serializers.SerializerMethodField()
+    next_league_trophy = serializers.SerializerMethodField()
+    
+    def get_next_level_xp(self, user):
+        return user.level_xp_relation(user.level + 1)
+    
+    def get_next_league_trophy(self, user):
+        return user.league_trophy_relation(user.leagueLevel+1)
 
     def get_xp_data(self, user):
         return {
@@ -119,8 +127,9 @@ class SelfSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('idUser', 'username', 'winCount', 'loseCount', 'deck1', 'xp_data', 'clan_id', 'clan_name',
-                  'totalDonations', 'trophy_data', 'cards', 'gold', 'gem', 'rewardPacks')
+        fields = ('idUser', 'username', 'winCount', 'loseCount', 'deck1', 'xp', 'next_level_xp', 'level', 'clan_id',
+                   'clan_name', 'totalDonations', 'trophiesCount', 'leagueLevel', 'next_league_trophy', 'cards', 'gold',
+                   'gem', 'rewardPacks')
 
 
 # class ClanCreatorSerializer(serializers.ModelSerializer):
