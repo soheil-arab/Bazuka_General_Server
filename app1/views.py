@@ -531,8 +531,8 @@ class CardUpgrade(APIView):
         xp_data = user.add_xp(xp)
         user.save()
         card.save()
-        card_data = CardSerializer(card).data
-
+        card_data = dict(CardSerializer(card).data)
+        card_data['card_delta'] = required_cards
         # response_data = {'userID': user.idUser, 'cardTypeID': cardID, 'cardLevel': card.cardLevel,
         #                  'cardCount': card.cardCount, 'xp': xp_data, 'upgrade_gold_cost': required_gold,
         #                  'next_gold': cardConf.CardUpgrade.required_golds(card.cardLevel, card.cardType.cardRarity),
@@ -817,8 +817,8 @@ class UnpackReward(APIView):
         for card in card_obj_list:
             cs = serializer.CardSerializer(card)
             tmp_data = dict(cs.data)
-            tmp_data['earned_card'] = cards[card.cardType.Cardid]
-            if tmp_data['earned_card'] is tmp_data['cardCount'] and tmp_data['cardLevel'] is 0:
+            tmp_data['card_delta'] = cards[card.cardType.Cardid]
+            if tmp_data['card_delta'] is tmp_data['cardCount'] and tmp_data['cardLevel'] is 0:
                 tmp_data['isNewCard'] = 1
             cards_data.append(tmp_data)
         return Response({'gold': gold_data, 'cards': cards_data, 'gem': gem_data}, status=status.HTTP_200_OK)
