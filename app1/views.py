@@ -533,7 +533,7 @@ class CardUpgrade(APIView):
         user.save()
         card.save()
         card_data = dict(CardSerializer(card).data)
-        card_data['card_delta'] = required_cards
+        card_data['card_delta'] = -required_cards
         # response_data = {'userID': user.idUser, 'cardTypeID': cardID, 'cardLevel': card.cardLevel,
         #                  'cardCount': card.cardCount, 'xp': xp_data, 'upgrade_gold_cost': required_gold,
         #                  'next_gold': cardConf.CardUpgrade.required_golds(card.cardLevel, card.cardType.cardRarity),
