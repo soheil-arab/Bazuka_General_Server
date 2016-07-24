@@ -6,6 +6,7 @@ from rest_framework import status
 
 from django.http import JsonResponse, Http404
 from django.db import IntegrityError
+from django.db.models import Q
 
 from django.contrib.auth.models import User as djangoUser
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
@@ -894,3 +895,16 @@ class UnlockPack(APIView):
         pack.save()
         pack = serializer.PackSerializer(pack)
         return Response(pack.data, status=status.HTTP_200_OK)
+
+class SearchClanByName(APIView):
+
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = (JSONWebTokenAuthentication, )
+
+    def get(self, request, query):
+        # clans = Clan.objects.filter(Q(clanName__icontains=query) | Q(clanDescription__icontains=query) )[:20]
+        clans = Clan.objects.filter(clanName__icontains=query)[:20]
+        data = list()
+        for clan in clans:
+            data.append(serializer.ClanSerializer(clan).data)
+        return Response({'results': data}, status=status.HTTP_200_OK)

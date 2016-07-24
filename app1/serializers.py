@@ -84,12 +84,11 @@ class PackSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     clan_name = serializers.CharField(source='userClan.clanName', read_only=True)
     clan_id = serializers.IntegerField(source='userClan.idClan', read_only=True)
-    cards = CardSerializer(many=True)
 
     class Meta:
         model = User
         fields = ('idUser', 'username', 'winCount', 'loseCount', 'deck1', 'xp', 'level', 'clan_id',
-                  'clan_name', 'totalDonations', 'trophiesCount', 'leagueLevel', 'cards', 'gold', 'gem')
+                  'clan_name', 'totalDonations', 'trophiesCount', 'leagueLevel')
 
 
 class SelfSerializer(serializers.ModelSerializer):
