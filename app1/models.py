@@ -53,6 +53,7 @@ class User(models.Model):
     kingHP = models.SmallIntegerField(default=200)
     packCount = models.SmallIntegerField(default=0)
     packEmptySlots = ArrayField(models.IntegerField(), size=4, default=[1, 1, 1, 1])
+    backtory_instanceID = models.CharField(max_length=64, null=True, blank=True)
 
     def __str__(self):
         return 'user_{0}@{1}'.format(self.idUser, self.username)

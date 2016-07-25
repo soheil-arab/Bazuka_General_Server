@@ -7,6 +7,8 @@ from app1.card_conf import CardUpgrade, CardPack
 
 import time
 
+
+
 class CardSerializer(serializers.ModelSerializer):
     next_level_count = serializers.SerializerMethodField('next_count')
     next_level_gold = serializers.SerializerMethodField('next_gold')
@@ -41,6 +43,17 @@ class ClanUserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('idUser', 'username', 'level', 'trophiesCount', 'position', 'donate_count')
 
+class ClanMinimalSerializer(serializers.ModelSerializer):
+    user_count = serializers.SerializerMethodField()
+
+    def get_user_count(self, clan):
+        return clan.users.count()
+
+    class Meta:
+        model = Clan
+        fields = ('idClan', 'clanName', 'clanLocation', 'clanType', 'clanMinimumTrophies', 'clanScore', 'clanBadge',
+                  'user_count')
+
 class ClanSerializer(serializers.ModelSerializer):
     users = ClanUserSerializer(many=True, required=False, read_only=True)
 
@@ -48,7 +61,6 @@ class ClanSerializer(serializers.ModelSerializer):
         model = Clan
         fields = ('idClan', 'clanName', 'clanDescription', 'clanLocation', 'clanType',
                   'clanMinimumTrophies', 'clanScore', 'users', 'clanBadge')
-
 
 class PackSerializer(serializers.ModelSerializer):
     # unlock_required_gem = serializers.SerializerMethodField('unlock_gem')

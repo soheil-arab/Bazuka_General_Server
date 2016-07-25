@@ -31,6 +31,7 @@ import time
 import hashlib
 import json
 import math
+import requests
 
 
 @api_view(['POST', 'GET'])
@@ -475,6 +476,24 @@ class UserList(APIView):
         password = m.hexdigest()
         user = self.create_basic_user(username, password)
         user = User.objects.create(basicUser=user)
+        auth_id = "5795af35e4b0781338a4efa7"
+        url = "https://api.backtory.com/auth/users"
+        headers = {
+            "X-Backtory-Authentication-Id": auth_id,
+            "Content-Type": "application/json"
+        }
+        data = {
+            "firstName": "",
+            "lastName": "",
+            "username": username,
+            "password": password,
+            "email": "",
+            "phoneNumber": ""
+        }
+        r1 = requests.post(url, json=data, headers=headers)
+        if r1.status_code != 201:
+            print('user not registered on backtory')
+            #TODO: log and do it again :D
         return Response({"uuid": username, "password": password}, status=status.HTTP_201_CREATED)
 
     def create_basic_user(self, username, password):
@@ -556,6 +575,7 @@ class SetUsername(APIView):
         user.username = username
         user.save()
         user = serializer.UserSerializer(user)
+        # TODO: update username backtory :D
         return Response(user.data, status=status.HTTP_200_OK)
 
 
@@ -906,5 +926,5 @@ class SearchClanByName(APIView):
         clans = Clan.objects.filter(clanName__icontains=query)[:20]
         data = list()
         for clan in clans:
-            data.append(serializer.ClanSerializer(clan).data)
+            data.append(serializer.ClanMinimalSerializer(clan).data)
         return Response({'results': data}, status=status.HTTP_200_OK)
