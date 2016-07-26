@@ -906,11 +906,11 @@ class UnlockPack(APIView):
         pack = RewardPack.get_object(reward_pk)
         user = request.user.user
         user_packs = user.rewardPacks.all()
-        for pack in user_packs:
-            if pack.unlockStartTime is not -1:
-                return Response({'detail': 'another unlock in progress'}, status=status.HTTP_406_NOT_ACCEPTABLE)
         if pack.packUser.idUser != user.idUser:
             return Response({'detail': 'it\'s not your pack:D '}, status=status.HTTP_406_NOT_ACCEPTABLE)
+        for ipack in user_packs:
+            if ipack.unlockStartTime is not -1:
+                return Response({'detail': 'another unlock in progress'}, status=status.HTTP_406_NOT_ACCEPTABLE)
         pack.unlockStartTime = int(time.time())
         pack.save()
         pack = serializer.PackSerializer(pack)
