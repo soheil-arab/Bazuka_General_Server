@@ -3,6 +3,7 @@ from django.contrib.postgres.fields import ArrayField,HStoreField
 from django.http import Http404
 import random
 from django.contrib.auth.models import User as djangoUser
+import time
 
 CARD_RARITY = ((0, 'Common'), (1, 'Rare'), (2, 'Epic'))
 
@@ -16,6 +17,8 @@ def default_deck_gen():
 def default_pack_cycle():
     return [120, 30, 10, 5, 2, 1]
 
+def current_time():
+    return int(time.time())
 
 def clan_tag_generator():
     return 'hi'
@@ -293,6 +296,9 @@ class RewardPack(models.Model):
         except RewardPack.DoesNotExist:
             raise Http404
 
+    def __str__(self):
+        return 'pack_{0}@{1}'.format(self.idPack, self.packUser.idUser)
+
 
 class Card(models.Model):
     idCard = models.AutoField(primary_key=True)
@@ -304,6 +310,9 @@ class Card(models.Model):
     class Meta:
         unique_together = (('user', 'cardType'), )
         index_together = [['user', 'cardType'], ]
+
+    def __str__(self):
+        return 'card_{0}@{1}#{2}'.format(self.cardType.Cardid, self.user.idUser, self.idCard)
 
 
 
@@ -323,3 +332,7 @@ class Donation(models.Model):
     requiredCardCount = models.IntegerField(default=0)
     donatedCardCount = models.IntegerField(default=0)
     donators = HStoreField()
+    startTime = models.IntegerField(default=current_time())
+    cardType = models.ForeignKey(CardType)
+    def __str__(self):
+        return 'donate_{0}@{1}'.format(self.id, self.owner.idUser)

@@ -928,3 +928,20 @@ class SearchClanByName(APIView):
         for clan in clans:
             data.append(serializer.ClanMinimalSerializer(clan).data)
         return Response({'results': data}, status=status.HTTP_200_OK)
+
+class DonateRequest(APIView):
+
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = (JSONWebTokenAuthentication, )
+
+    def post(self, request):
+        user = request.user.user
+        card_type_id = request.data["card_type_id"]
+        card_type = CardType.objects.get(Cardid=card_type_id)
+        donate_obj = Donation()
+        donate_obj.owner = user
+        donate_obj.cardType = card_type
+#        donate_obj.requiredCardCount = parsia function
+        donate_obj.save()
+        data = serializer.DonationSerializer(donate_obj).data()
+        return Response(data,)

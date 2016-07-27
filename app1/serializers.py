@@ -1,5 +1,5 @@
 __author__ = 'soheil'
-from app1.models import User, Clan, CardType, Card, RewardPack
+from app1.models import User, Clan, CardType, Card, RewardPack, Donation
 
 from rest_framework import serializers
 from app1.card_conf import CardUpgrade, CardPack
@@ -73,6 +73,7 @@ class PackSerializer(serializers.ModelSerializer):
     def get_pack_remaining_time(self, pack):
         if pack.unlockStartTime is -1:
             return -1
+
         return CardPack.pack_time(pack.packType, 'S') - int(time.time()) + pack.unlockStartTime
 
     def get_pack_unlock_time(self, pack):
@@ -145,6 +146,16 @@ class SelfSerializer(serializers.ModelSerializer):
 
 class DonationSerializer(serializers.ModelSerializer):
 
+    owner_userID = serializers.IntegerField(source='owner.idUser', read_only=True)
+    owner_username = serializers.CharField(source='owner.username', read_only=True)
+    card_type_id = serializers.IntegerField(source='cardType.Cardid')
+    remaining_time = serializers.SerializerMethodField()
+
+    def get_remaining_time(self, donation):
+        remain = int(time.time()) - donation.startTime
+    class Meta:
+        model = Donation
+        fields = ('owner_userID', 'owner_username', 'requiredCardCount', 'donatedCardCount', 'donators', 'card_type_id')
 
 # class ClanCreatorSerializer(serializers.ModelSerializer):
 #     class Meta:
