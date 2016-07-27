@@ -73,7 +73,8 @@ class PackSerializer(serializers.ModelSerializer):
     def get_pack_remaining_time(self, pack):
         if pack.unlockStartTime is -1:
             return -1
-        return CardPack.pack_time(pack.packType, 'S') - int(time.time()) + pack.unlockStartTime
+        remain = CardPack.pack_time(pack.packType, 'S') - int(time.time()) + pack.unlockStartTime
+        return remain if remain > 0 else 0
 
     def get_pack_unlock_time(self, pack):
         return CardPack.pack_time(pack.packType, 'H')
