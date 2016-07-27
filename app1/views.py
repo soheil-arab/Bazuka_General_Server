@@ -909,7 +909,8 @@ class UnlockPack(APIView):
         if pack.packUser.idUser != user.idUser:
             return Response({'detail': 'it\'s not your pack:D '}, status=status.HTTP_406_NOT_ACCEPTABLE)
         for ipack in user_packs:
-            if ipack.unlockStartTime is not -1 and ipack.unlockStartTime is not 0:
+            remain = cardConf.CardPack.pack_time(ipack.packType, 'S') - int(time.time()) + ipack.unlockStartTime
+            if ipack.unlockStartTime is not -1 and remain is not 0:
                 return Response({'detail': 'another unlock in progress'}, status=status.HTTP_406_NOT_ACCEPTABLE)
         pack.unlockStartTime = int(time.time())
         pack.save()
