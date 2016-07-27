@@ -14,7 +14,7 @@ from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from django.core.exceptions import ObjectDoesNotExist
 
 from app1 import serializers as serializer
-from app1.models import User, Card, CardType, Clan, UserClanData, RewardPack
+from app1.models import User, Card, CardType, Clan, UserClanData, RewardPack, Donation
 
 import app1.card_conf as cardConf
 import app1.utils as myUtils
@@ -31,7 +31,7 @@ import time
 import hashlib
 import json
 import math
-import requests
+import requests as requests
 
 
 @api_view(['POST', 'GET'])

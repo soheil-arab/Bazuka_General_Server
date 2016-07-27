@@ -143,6 +143,9 @@ class SelfSerializer(serializers.ModelSerializer):
                    'gem', 'rewardPacks')
 
 
+class DonationSerializer(serializers.ModelSerializer):
+
+
 # class ClanCreatorSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = Clan

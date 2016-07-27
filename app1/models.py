@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import ArrayField,HStoreField
 from django.http import Http404
 import random
 from django.contrib.auth.models import User as djangoUser
@@ -316,3 +316,10 @@ class UserClanData(models.Model):
     donate_count = models.IntegerField(default=0)
     lastRequestTime = models.IntegerField(default=0)
 
+
+
+class Donation(models.Model):
+    owner = models.ForeignKey(User)
+    requiredCardCount = models.IntegerField(default=0)
+    donatedCardCount = models.IntegerField(default=0)
+    donators = HStoreField()
