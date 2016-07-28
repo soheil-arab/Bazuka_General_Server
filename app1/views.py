@@ -830,6 +830,7 @@ class UnpackReward(APIView):
             if user.gem < required_gem:
                 return Response({'detail': 'you don\'t have enough gem to unpack'}, status=status.HTTP_406_NOT_ACCEPTABLE)
             gem = -required_gem
+            print(gem)
         else:
             if pack.unlockStartTime is -1:
                 return Response({'detail': '{0} seconds remain to unlock pack'.format(pack_time)},
@@ -840,6 +841,7 @@ class UnpackReward(APIView):
         # TODO: uncomment delete line
         # pack.delete()
         # user.packEmptySlots[pack.slotNumber] = 1
+        print(gem)
         gold, cards = self.open_pack(pack)
         card_obj_list = user.add_cards(cards)
         gold_data = user.add_gold(gold)
