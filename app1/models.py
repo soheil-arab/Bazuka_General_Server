@@ -281,6 +281,14 @@ class Clan(models.Model):
     def __str__(self):
         return 'clan_{0}@{1}'.format(self.idClan, self.clanName)
 
+    @staticmethod
+    def get_object(pk):
+        try:
+            return Clan.objects.get(pk=pk)
+        except Clan.DoesNotExist:
+            raise Http404
+
+
 class RewardPack(models.Model):
     idPack = models.AutoField(primary_key=True)
     packType = models.IntegerField(default=0)
@@ -333,6 +341,8 @@ class Donation(models.Model):
     donatedCardCount = models.IntegerField(default=0)
     donators = HStoreField()
     startTime = models.IntegerField(default=current_time())
-    cardType = models.ForeignKey(CardType)
+    cardType = models.ForeignKey(CardType, null=True, blank=True)
+    clan = models.ForeignKey(Clan, null=True, blank=True)
+
     def __str__(self):
         return 'donate_{0}@{1}'.format(self.id, self.owner.idUser)

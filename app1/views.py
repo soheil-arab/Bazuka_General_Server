@@ -601,7 +601,7 @@ class ClanMembership(APIView):
     def post(self, request, clan_pk, action, format=None):
         if action == "join":
             user = request.user.user
-            clan = ClanDetail.get_object(self=None, pk=clan_pk)
+            clan = Clan.get_object(clan_pk)
             user.userClan = clan
             #TODO: update score and other things
             if user.clanData is None:
@@ -670,11 +670,11 @@ class MatchResult(APIView):
         except KeyError:
             return Response({'detail': 'incomplete info'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if user2['type'] is 'tutorial':
+        if user2['type'] == 'tutorial':
             responseData = self.match_result_tutorial(user1, user2, match_info)
-        elif user2['type'] is 'bot':
+        elif user2['type'] == 'bot':
             responseData = self.match_result_bot(user1, user2, match_info)
-        elif user2['type'] is 'player':
+        elif user2['type'] == 'player':
             responseData = self.match_result(user1, user2, match_info)
 
     def match_result_tutorial(self, user1, user2, match_info):
@@ -819,16 +819,27 @@ class UnpackReward(APIView):
             return Response({'detail': 'it\'s not your pack:D '}, status=status.HTTP_406_NOT_ACCEPTABLE)
         pack_time = cardConf.CardPack.pack_time(pack.packType, 'S')
         spend_time = int(time.time()) - pack.unlockStartTime
-        if pack.unlockStartTime is -1:
-            return Response({'detail': '{0} seconds remain to unlock pack'.format(pack_time)},
-                            status=status.HTTP_400_BAD_REQUEST)
-        if spend_time < pack_time:
-            return Response({'detail': '{0} seconds remain to unlock pack'.format(pack_time - spend_time)},
-                            status=status.HTTP_400_BAD_REQUEST)
+        remaining_time = pack_time - spend_time
+        remaining_time = remaining_time if remaining_time > 0 else 0
+        gem = 0
+        unpack_type = request.data.get('unpack_type')
+        if unpack_type is not None and unpack_type == 'gem':
+            # TODO: gem time ratio
+            print(unpack_type)
+            required_gem = math.ceil(remaining_time / 600)
+            if user.gem < required_gem:
+                return Response({'detail': 'you don\'t have enough gem to unpack'}, status=status.HTTP_406_NOT_ACCEPTABLE)
+            gem = -required_gem
+        else:
+            if pack.unlockStartTime is -1:
+                return Response({'detail': '{0} seconds remain to unlock pack'.format(pack_time)},
+                                status=status.HTTP_406_NOT_ACCEPTABLE)
+            if spend_time < pack_time:
+                return Response({'detail': '{0} seconds remain to unlock pack'.format(remaining_time)},
+                                status=status.HTTP_406_NOT_ACCEPTABLE)
         # TODO: uncomment delete line
         # pack.delete()
         # user.packEmptySlots[pack.slotNumber] = 1
-        gem = 0
         gold, cards = self.open_pack(pack)
         card_obj_list = user.add_cards(cards)
         gold_data = user.add_gold(gold)
@@ -909,7 +920,8 @@ class UnlockPack(APIView):
         if pack.packUser.idUser != user.idUser:
             return Response({'detail': 'it\'s not your pack:D '}, status=status.HTTP_406_NOT_ACCEPTABLE)
         for ipack in user_packs:
-            if ipack.unlockStartTime is not -1 and ipack.unlockStartTime is not 0:
+            remain = cardConf.CardPack.pack_time(ipack.packType, 'S') - int(time.time()) + ipack.unlockStartTime
+            if ipack.unlockStartTime is not -1 and remain > 0:
                 return Response({'detail': 'another unlock in progress'}, status=status.HTTP_406_NOT_ACCEPTABLE)
         pack.unlockStartTime = int(time.time())
         pack.save()
@@ -936,12 +948,113 @@ class DonateRequest(APIView):
 
     def post(self, request):
         user = request.user.user
+        last_req = user.clanData.lastRequestTime
+        passed_time = int(time.time()) - last_req
+
+        # TODO: change const time with time that infer from logic :D
+        if passed_time < 8*60*60:
+            return Response({"detail": "{0} seconds remain for next request".format(8*60*60 - passed_time)}, status=status.HTTP_406_NOT_ACCEPTABLE)
+        print(request.data)
         card_type_id = request.data["card_type_id"]
         card_type = CardType.objects.get(Cardid=card_type_id)
         donate_obj = Donation()
         donate_obj.owner = user
         donate_obj.cardType = card_type
-#        donate_obj.requiredCardCount = parsia function
+        donate_obj.clan = user.userClan
+        # TODO: logic
+        donate_obj.requiredCardCount = 20
+        donate_obj.donators = {}
+
+        # TODO: social logic :D
+        # donate_obj.requiredCardCount = f()
+
         donate_obj.save()
-        data = serializer.DonationSerializer(donate_obj).data()
-        return Response(data,)
+
+        user.clanData.lastRequestTime = donate_obj.startTime
+        user.clanData.save()
+
+        data = serializer.DonationSerializer(donate_obj).data
+        return Response(data, status=status.HTTP_201_CREATED)
+
+
+class Donate(APIView):
+
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = (JSONWebTokenAuthentication, )
+
+    def post(self, request, donate_pk):
+        user = request.user.user
+
+        donate_obj = Donation.objects.get(pk=donate_pk)
+        if donate_obj.requiredCardCount == donate_obj.donatedCardCount:
+            return Response({'detail': 'donate done : {0}/{1}'.format(donate_obj.donatedCardCount, donate_obj.requiredCardCount)}, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+        user_donate_count = donate_obj.donators.get(str(user.idUser))
+        if user_donate_count is not None:
+            # TODO: social logic :D
+            if int(user_donate_count) >= 4:
+                return Response({'detail': 'you can\'t donate more cards'}, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+        donate_user = donate_obj.owner
+        if donate_user.userClan != user.userClan:
+            return Response({'detail': 'invalid request -> you are not in same clan'}, status=status.HTTP_406_NOT_ACCEPTABLE)
+        if user is donate_user:
+            return Response({'detail': 'you can\'t donate for yourself :D'}, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+        donator_card = Card.objects.filter(cardType=donate_obj.cardType).filter(user=user)
+        if donator_card.count() > 1:
+            return Response({'detail': 'invalid request -> you have more than one card from this type'}, status=status.HTTP_406_NOT_ACCEPTABLE)
+        if donator_card.count() == 0:
+            return Response({'detail': 'invalid request -> you don\'t have any card from this type'}, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+        donator_card = donator_card[0]
+        if donator_card.cardCount < 1:
+            return Response({'detail': 'invalid request -> you don\'t enough card to donate'}, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+        destination_card = Card.objects.filter(cardType=donate_obj.cardType).filter(user=donate_user)[0]
+        donator_card.cardCount -= 1
+        destination_card.cardCount += 1
+        destination_card.save()
+        donator_card.save()
+
+        # TODO : add logic here
+        earned_xp = 10
+        earned_gold = 20
+
+        gold_data = user.add_gold(earned_gold)
+        xp_data = user.add_xp(earned_xp)
+        user.clanData.donate_count += 1
+        user.clanData.save()
+        user.save()
+
+        if user_donate_count is None:
+            donate_obj.donators[str(user.idUser)] = '1'
+        else:
+            donate_obj.donators[str(user.idUser)] = str(int(user_donate_count) + 1)
+
+        donate_obj.donatedCardCount += 1
+        donate_obj.save()
+
+        # TODO: do something after donation object done
+        # if donate_obj.donatedCardCount == donate_obj.requiredCardCount:
+        #     print('done')
+
+        data = serializer.DonationSerializer(donate_obj).data
+        return Response({'donate_data': data, 'xp_data': xp_data, 'gold_data': gold_data}, status=status.HTTP_201_CREATED)
+
+
+class AddGem(APIView):
+
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = (JSONWebTokenAuthentication, )
+
+    def post(self, request):
+        user = request.user.user
+        gem_data = user.add_gem(100)
+        user.save()
+        return Response({'gem_data': gem_data},status=status.HTTP_200_OK)
+
+class UnpackByGem(APIView):
+
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = (JSONWebTokenAuthentication, )

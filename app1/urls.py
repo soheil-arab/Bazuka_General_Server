@@ -35,6 +35,7 @@ urlpatterns = [
     #   get my user info
     url(r'^v2/me/$', views.Me.as_view()),
 
+    url(r'^v2/me/addgem/$', views.AddGem.as_view()),
 
     # search clan by name
     url(r'^v2/clans/search/(?P<query>[a-zA-z1-9]+)/$',views.SearchClanByName.as_view()),
@@ -47,14 +48,19 @@ urlpatterns = [
 
 
     #   update match result
-    url(r'^v2/rooms/(?P<roomID>[a-z0-9]+)/result$', views.MatchResult.as_view()),
+    url(r'^v2/rooms/(?P<roomID>[a-z0-9]+)/result/$', views.MatchResult.as_view()),
 
     #   unpack reward pack
-    url(r'^v2/packs/(?P<reward_pk>[0-9]+)/unpack$', views.UnpackReward.as_view()),
+    url(r'^v2/packs/(?P<reward_pk>[0-9]+)/unpack/$', views.UnpackReward.as_view()),
     #   unlock reward pack
-    url(r'^v2/packs/(?P<reward_pk>[0-9]+)/unlock$', views.UnlockPack.as_view()),
+    url(r'^v2/packs/(?P<reward_pk>[0-9]+)/unlock/$', views.UnlockPack.as_view()),
 
     #   card upgrade
-    url(r'^v2/cards/(?P<cardID>[0-9]+)/$', views.CardUpgrade.as_view())
+    url(r'^v2/cards/(?P<cardID>[0-9]+)/$', views.CardUpgrade.as_view()),
+
+    #   donate request
+    url(r'v2/donates/$', views.DonateRequest.as_view()),
+    #   donate card
+    url(r'v2/donates/(?P<donate_pk>[0-9]+)/$', views.Donate.as_view()),
 ]
 

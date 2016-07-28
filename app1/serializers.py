@@ -35,6 +35,24 @@ class CardSerializer(serializers.ModelSerializer):
         fields = ('cardTypeID', 'cardDBIndex', 'cardRarity', 'cardCount', 'cardLevel', 'next_level_count',
                   'next_level_gold', 'upgradable', 'isNewCard')
 
+class DonationSerializer(serializers.ModelSerializer):
+
+    owner_userID = serializers.IntegerField(source='owner.idUser', read_only=True)
+    owner_username = serializers.CharField(source='owner.username', read_only=True)
+    card_type_id = serializers.IntegerField(source='cardType.Cardid')
+    remaining_time = serializers.SerializerMethodField()
+
+    # TODO: change this part after logic :D
+    def get_remaining_time(self, donation):
+        remain = 8*60*60 - int(time.time()) + donation.startTime
+        return remain if remain >= 0 else 0
+
+    class Meta:
+        model = Donation
+        fields = ('id', 'owner_userID', 'owner_username', 'requiredCardCount', 'donatedCardCount', 'donators', 'card_type_id',
+                  'remaining_time')
+
+
 class ClanUserSerializer(serializers.ModelSerializer):
     donate_count = serializers.IntegerField(source='clanData.donate_count', read_only=True)
     position = serializers.IntegerField(source='clanData.position', read_only=True)
@@ -56,11 +74,12 @@ class ClanMinimalSerializer(serializers.ModelSerializer):
 
 class ClanSerializer(serializers.ModelSerializer):
     users = ClanUserSerializer(many=True, required=False, read_only=True)
+    donations = DonationSerializer(many=True, required=False, read_only=True)
 
     class Meta:
         model = Clan
         fields = ('idClan', 'clanName', 'clanDescription', 'clanLocation', 'clanType',
-                  'clanMinimumTrophies', 'clanScore', 'users', 'clanBadge')
+                  'clanMinimumTrophies', 'clanScore', 'users', 'clanBadge', 'donations')
 
 class PackSerializer(serializers.ModelSerializer):
     # unlock_required_gem = serializers.SerializerMethodField('unlock_gem')
@@ -73,8 +92,8 @@ class PackSerializer(serializers.ModelSerializer):
     def get_pack_remaining_time(self, pack):
         if pack.unlockStartTime is -1:
             return -1
-
-        return CardPack.pack_time(pack.packType, 'S') - int(time.time()) + pack.unlockStartTime
+        remain = CardPack.pack_time(pack.packType, 'S') - int(time.time()) + pack.unlockStartTime
+        return remain if remain > 0 else 0
 
     def get_pack_unlock_time(self, pack):
         return CardPack.pack_time(pack.packType, 'H')
@@ -107,6 +126,7 @@ class UserSerializer(serializers.ModelSerializer):
 class SelfSerializer(serializers.ModelSerializer):
     clan_name = serializers.CharField(source='userClan.clanName', read_only=True)
     clan_id = serializers.IntegerField(source='userClan.idClan', read_only=True)
+    clan_badge = serializers.IntegerField(source='userClan.clanBadge', read_only=True)
     cards = CardSerializer(many=True)
     rewardPacks = PackSerializer(many=True)
     # xp_data = serializers.SerializerMethodField()
@@ -140,22 +160,10 @@ class SelfSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('idUser', 'username', 'winCount', 'loseCount', 'deck1', 'xp', 'next_level_xp', 'level', 'clan_id',
-                   'clan_name', 'totalDonations', 'trophiesCount', 'leagueLevel', 'next_league_trophy', 'cards', 'gold',
-                   'gem', 'rewardPacks')
+                  'clan_name', 'clan_badge', 'totalDonations', 'trophiesCount', 'leagueLevel', 'next_league_trophy',
+                  'cards', 'gold', 'gem', 'rewardPacks')
 
 
-class DonationSerializer(serializers.ModelSerializer):
-
-    owner_userID = serializers.IntegerField(source='owner.idUser', read_only=True)
-    owner_username = serializers.CharField(source='owner.username', read_only=True)
-    card_type_id = serializers.IntegerField(source='cardType.Cardid')
-    remaining_time = serializers.SerializerMethodField()
-
-    def get_remaining_time(self, donation):
-        remain = int(time.time()) - donation.startTime
-    class Meta:
-        model = Donation
-        fields = ('owner_userID', 'owner_username', 'requiredCardCount', 'donatedCardCount', 'donators', 'card_type_id')
 
 # class ClanCreatorSerializer(serializers.ModelSerializer):
 #     class Meta:
