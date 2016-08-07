@@ -381,79 +381,6 @@ class MyEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-class ClanList(APIView):
-
-    permission_classes = (IsAuthenticated, )
-    authentication_classes = (JSONWebTokenAuthentication, )
-
-    def post(self, request, format=None):
-        clan = serializer.ClanSerializer(data=request.data)
-        if clan.is_valid():
-            clanobj = clan.save()
-            user = request.user.user
-            if user.clanData is None:
-                clanData = UserClanData.objects.create()
-                user.clanData = clanData
-            user.clanData.position = 1
-            user.clanData.save()
-            user.userClan = clanobj
-            user.save()
-            return Response(clan.data, status=status.HTTP_201_CREATED)
-        return Response(clan.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class ClanDetail(APIView):
-
-    permission_classes = (IsAuthenticated, )
-    authentication_classes = (JSONWebTokenAuthentication, )
-
-    @staticmethod
-    def get_object(pk):
-        try:
-            return Clan.objects.get(pk=pk)
-        except Clan.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk, format=None):
-        clan = self.get_object(pk)
-        clan = serializer.ClanSerializer(clan)
-        return Response(clan.data)
-
-
-class ClanMember(APIView):
-
-    permission_classes = (IsAuthenticated, )
-    authentication_classes = (JSONWebTokenAuthentication, )
-
-    def post(self, request, clan_pk, action, format=None):
-        if action == "join":
-            user = request.user.user
-            clan = ClanDetail.get_object(pk=clan_pk)
-            user.userClan = clan
-            #TODO: update score and other things
-            if user.clanData is None:
-                clanData = UserClanData.objects.create()
-                user.clanData = clanData
-            user.save()
-            clan = serializer.ClanSerializer(clan)
-            return Response(clan.data, status=status.HTTP_201_CREATED)
-        if action == "leave":
-            user = request.user.user
-            clan = ClanDetail.get_object(pk=clan_pk)
-            if user.userClan == clan:
-                user.userClan = None
-                #TODO: update score and other things
-                user.clanData.donate_count = 0
-                user.clanData.lastRequestTime = 0
-                user.clanData.position = 0
-                user.clanData.save()
-                user.save()
-                return Response({}, status=status.HTTP_200_OK)
-            else:
-                return Response({'detail': "you are not member of this clan"}, status=status.HTTP_400_BAD_REQUEST)
-
-        return Response({'detail': "invalid action"}, status=status.HTTP_400_BAD_REQUEST)
-
-
 
 
 class UserList(APIView):
@@ -476,7 +403,7 @@ class UserList(APIView):
         password = m.hexdigest()
         user = self.create_basic_user(username, password)
         user = User.objects.create(basicUser=user)
-        auth_id = "5795af35e4b0781338a4efa7"
+        auth_id = "574d9a84e4b03372468997f8"
         url = "https://api.backtory.com/auth/users"
         headers = {
             "X-Backtory-Authentication-Id": auth_id,
@@ -486,7 +413,7 @@ class UserList(APIView):
             "firstName": "",
             "lastName": "",
             "username": username,
-            "password": password,
+            "password": username,
             "email": "",
             "phoneNumber": ""
         }
@@ -494,6 +421,10 @@ class UserList(APIView):
         if r1.status_code != 201:
             print('user not registered on backtory')
             #TODO: log and do it again :D
+        user_data = r1.json()
+        backtory_user_id = user_data['userId']
+        user.backtory_userId = backtory_user_id
+        user.save()
         return Response({"uuid": username, "password": password}, status=status.HTTP_201_CREATED)
 
     def create_basic_user(self, username, password):
@@ -593,40 +524,6 @@ class Me(APIView):
         return Response(data, status=status.HTTP_200_OK)
 
 
-class ClanMembership(APIView):
-
-    permission_classes = (IsAuthenticated, )
-    authentication_classes = (JSONWebTokenAuthentication, )
-
-    def post(self, request, clan_pk, action, format=None):
-        if action == "join":
-            user = request.user.user
-            clan = Clan.get_object(clan_pk)
-            user.userClan = clan
-            #TODO: update score and other things
-            if user.clanData is None:
-                clanData = UserClanData.objects.create()
-                user.clanData = clanData
-            user.save()
-            clan = serializer.ClanSerializer(clan)
-            return Response(clan.data, status=status.HTTP_201_CREATED)
-        if action == "leave":
-            user = request.user.user
-            clan = ClanDetail.get_object(self=None, pk=clan_pk)
-            if user.idUser != str(user.userClan):
-                user.userClan = None
-                #TODO: update score and other things
-                user.clanData.donate_count = 0
-                user.clanData.lastRequestTime = 0
-                user.clanData.position = 0
-                user.clanData.save()
-                user.save()
-                clan = serializer.ClanSerializer(clan)
-                return Response(clan.data, status=status.HTTP_201_CREATED)
-            else:
-                return Response({'detail': "clanLeader can not leave the clan"}, status=status.HTTP_400_BAD_REQUEST)
-
-        return Response({'detail': "invalid action"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class Deck(APIView):
@@ -928,119 +825,8 @@ class UnlockPack(APIView):
         pack = serializer.PackSerializer(pack)
         return Response(pack.data, status=status.HTTP_200_OK)
 
-class SearchClanByName(APIView):
-
-    permission_classes = (IsAuthenticated, )
-    authentication_classes = (JSONWebTokenAuthentication, )
-
-    def get(self, request, query):
-        # clans = Clan.objects.filter(Q(clanName__icontains=query) | Q(clanDescription__icontains=query) )[:20]
-        clans = Clan.objects.filter(clanName__icontains=query)[:20]
-        data = list()
-        for clan in clans:
-            data.append(serializer.ClanMinimalSerializer(clan).data)
-        return Response({'results': data}, status=status.HTTP_200_OK)
-
-class DonateRequest(APIView):
-
-    permission_classes = (IsAuthenticated, )
-    authentication_classes = (JSONWebTokenAuthentication, )
-
-    def post(self, request):
-        user = request.user.user
-        last_req = user.clanData.lastRequestTime
-        passed_time = int(time.time()) - last_req
-
-        # TODO: change const time with time that infer from logic :D
-        if passed_time < 8*60*60:
-            return Response({"detail": "{0} seconds remain for next request".format(8*60*60 - passed_time)}, status=status.HTTP_406_NOT_ACCEPTABLE)
-        print(request.data)
-        card_type_id = request.data["card_type_id"]
-        card_type = CardType.objects.get(Cardid=card_type_id)
-        donate_obj = Donation()
-        donate_obj.owner = user
-        donate_obj.cardType = card_type
-        donate_obj.clan = user.userClan
-        # TODO: logic
-        donate_obj.requiredCardCount = 20
-        donate_obj.donators = {}
-
-        # TODO: social logic :D
-        # donate_obj.requiredCardCount = f()
-
-        donate_obj.save()
-
-        user.clanData.lastRequestTime = donate_obj.startTime
-        user.clanData.save()
-
-        data = serializer.DonationSerializer(donate_obj).data
-        return Response(data, status=status.HTTP_201_CREATED)
 
 
-class Donate(APIView):
-
-    permission_classes = (IsAuthenticated, )
-    authentication_classes = (JSONWebTokenAuthentication, )
-
-    def post(self, request, donate_pk):
-        user = request.user.user
-
-        donate_obj = Donation.objects.get(pk=donate_pk)
-        if donate_obj.requiredCardCount == donate_obj.donatedCardCount:
-            return Response({'detail': 'donate done : {0}/{1}'.format(donate_obj.donatedCardCount, donate_obj.requiredCardCount)}, status=status.HTTP_406_NOT_ACCEPTABLE)
-
-        user_donate_count = donate_obj.donators.get(str(user.idUser))
-        if user_donate_count is not None:
-            # TODO: social logic :D
-            if int(user_donate_count) >= 4:
-                return Response({'detail': 'you can\'t donate more cards'}, status=status.HTTP_406_NOT_ACCEPTABLE)
-
-        donate_user = donate_obj.owner
-        if donate_user.userClan != user.userClan:
-            return Response({'detail': 'invalid request -> you are not in same clan'}, status=status.HTTP_406_NOT_ACCEPTABLE)
-        if user is donate_user:
-            return Response({'detail': 'you can\'t donate for yourself :D'}, status=status.HTTP_406_NOT_ACCEPTABLE)
-
-        donator_card = Card.objects.filter(cardType=donate_obj.cardType).filter(user=user)
-        if donator_card.count() > 1:
-            return Response({'detail': 'invalid request -> you have more than one card from this type'}, status=status.HTTP_406_NOT_ACCEPTABLE)
-        if donator_card.count() == 0:
-            return Response({'detail': 'invalid request -> you don\'t have any card from this type'}, status=status.HTTP_406_NOT_ACCEPTABLE)
-
-        donator_card = donator_card[0]
-        if donator_card.cardCount < 1:
-            return Response({'detail': 'invalid request -> you don\'t enough card to donate'}, status=status.HTTP_406_NOT_ACCEPTABLE)
-
-        destination_card = Card.objects.filter(cardType=donate_obj.cardType).filter(user=donate_user)[0]
-        donator_card.cardCount -= 1
-        destination_card.cardCount += 1
-        destination_card.save()
-        donator_card.save()
-
-        # TODO : add logic here
-        earned_xp = 10
-        earned_gold = 20
-
-        gold_data = user.add_gold(earned_gold)
-        xp_data = user.add_xp(earned_xp)
-        user.clanData.donate_count += 1
-        user.clanData.save()
-        user.save()
-
-        if user_donate_count is None:
-            donate_obj.donators[str(user.idUser)] = '1'
-        else:
-            donate_obj.donators[str(user.idUser)] = str(int(user_donate_count) + 1)
-
-        donate_obj.donatedCardCount += 1
-        donate_obj.save()
-
-        # TODO: do something after donation object done
-        # if donate_obj.donatedCardCount == donate_obj.requiredCardCount:
-        #     print('done')
-
-        data = serializer.DonationSerializer(donate_obj).data
-        return Response({'donate_data': data, 'xp_data': xp_data, 'gold_data': gold_data}, status=status.HTTP_201_CREATED)
 
 
 class AddGem(APIView):

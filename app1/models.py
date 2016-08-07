@@ -57,6 +57,9 @@ class User(models.Model):
     packCount = models.SmallIntegerField(default=0)
     packEmptySlots = ArrayField(models.IntegerField(), size=4, default=[1, 1, 1, 1])
     backtory_instanceID = models.CharField(max_length=64, null=True, blank=True)
+    backtory_userId = models.CharField(max_length=64, null=True, blank=True)
+    invitaion_list = HStoreField(default={}, null=True, blank=True)
+    pending_clan_id = models.IntegerField(default=-1, null=True, blank=True)
 
     def __str__(self):
         return 'user_{0}@{1}'.format(self.idUser, self.username)
@@ -267,16 +270,25 @@ class CardType(models.Model):
     #     return cards, prob_list
 
 class Clan(models.Model):
+    TYPE_CHOICES = (
+        (0, 'Open'),
+        (1, 'Request'),
+        (2, 'Invite Only')
+    )
     idClan = models.AutoField(primary_key=True)
     clanName = models.CharField(max_length=30)
     clanDescription = models.TextField(max_length=140, blank=True, null=True)
     clanTag = models.CharField(max_length=10, unique=True, db_index=True, blank=True, null=True)#TODO: generate clan tag
     clanLocation = models.CharField(max_length=50, blank=True, null=True)
-    clanType = models.IntegerField(default=0)
+    clanType = models.IntegerField(default=0, choices=TYPE_CHOICES)
     clanMinimumTrophies = models.IntegerField(default=0)
     clanScore = models.IntegerField(default=0)
     totalDonation = models.IntegerField(default=0) #TODO: change to donation per week
     clanBadge = models.IntegerField(default=0, blank=True, null=True)
+    waiting_list = HStoreField(default={}, null=True, blank=True)
+    black_list = HStoreField(default={}, null=True, blank=True)
+    backtory_group_id = models.CharField(max_length=64, null=True, blank=True)
+    backtory_group_owner = models.CharField(max_length=64, null=True, blank=True)
 
     def __str__(self):
         return 'clan_{0}@{1}'.format(self.idClan, self.clanName)
@@ -327,12 +339,17 @@ class Card(models.Model):
 class UserClanData(models.Model):
     POSITION_CHOICES = (
         (0, 'Member'),
-        (1, 'Leader'),
+        (1, 'Elder'),
+        (2, 'Co-Leader'),
+        (3, 'Leader'),
     )
     position = models.IntegerField(default=0, choices=POSITION_CHOICES)
     donate_count = models.IntegerField(default=0)
     lastRequestTime = models.IntegerField(default=0)
+    daily_donate_count = models.SmallIntegerField(default=0, null=True, blank=True)
 
+    def __str__(self):
+        return 'ClanData_user#{0}@{1}'.format(self.user.idUser, self.user)
 
 
 class Donation(models.Model):

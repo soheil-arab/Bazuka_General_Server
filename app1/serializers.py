@@ -52,7 +52,6 @@ class DonationSerializer(serializers.ModelSerializer):
         fields = ('id', 'owner_userID', 'owner_username', 'requiredCardCount', 'donatedCardCount', 'donators', 'card_type_id',
                   'remaining_time')
 
-
 class ClanUserSerializer(serializers.ModelSerializer):
     donate_count = serializers.IntegerField(source='clanData.donate_count', read_only=True)
     position = serializers.IntegerField(source='clanData.position', read_only=True)
@@ -72,6 +71,14 @@ class ClanMinimalSerializer(serializers.ModelSerializer):
         fields = ('idClan', 'clanName', 'clanLocation', 'clanType', 'clanMinimumTrophies', 'clanScore', 'clanBadge',
                   'user_count')
 
+class ClanProfileSerializer(serializers.ModelSerializer):
+    users = ClanUserSerializer(many=True, required=False, read_only=True)
+
+    class Meta:
+        model = Clan
+        fields = ('idClan', 'clanName', 'clanDescription', 'clanLocation', 'clanType',
+                  'clanMinimumTrophies', 'clanScore', 'users', 'clanBadge')
+
 class ClanSerializer(serializers.ModelSerializer):
     users = ClanUserSerializer(many=True, required=False, read_only=True)
     donations = DonationSerializer(many=True, required=False, read_only=True)
@@ -79,7 +86,7 @@ class ClanSerializer(serializers.ModelSerializer):
     class Meta:
         model = Clan
         fields = ('idClan', 'clanName', 'clanDescription', 'clanLocation', 'clanType',
-                  'clanMinimumTrophies', 'clanScore', 'users', 'clanBadge', 'donations')
+                  'clanMinimumTrophies', 'clanScore', 'users', 'clanBadge', 'donations','backtory_group_id')
 
 class PackSerializer(serializers.ModelSerializer):
     # unlock_required_gem = serializers.SerializerMethodField('unlock_gem')
@@ -112,7 +119,6 @@ class PackSerializer(serializers.ModelSerializer):
         model = RewardPack
         fields = ('idPack', 'packType', 'pack_remaining_time', 'pack_unlock_time', 'packLeagueLevel', 'slotNumber', 'pack_content_info')
 
-
 class UserSerializer(serializers.ModelSerializer):
     clan_name = serializers.CharField(source='userClan.clanName', read_only=True)
     clan_id = serializers.IntegerField(source='userClan.idClan', read_only=True)
@@ -121,7 +127,6 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('idUser', 'username', 'winCount', 'loseCount', 'deck1', 'xp', 'level', 'clan_id',
                   'clan_name', 'totalDonations', 'trophiesCount', 'leagueLevel')
-
 
 class SelfSerializer(serializers.ModelSerializer):
     clan_name = serializers.CharField(source='userClan.clanName', read_only=True)
@@ -161,7 +166,7 @@ class SelfSerializer(serializers.ModelSerializer):
         model = User
         fields = ('idUser', 'username', 'winCount', 'loseCount', 'deck1', 'xp', 'next_level_xp', 'level', 'clan_id',
                   'clan_name', 'clan_badge', 'totalDonations', 'trophiesCount', 'leagueLevel', 'next_league_trophy',
-                  'cards', 'gold', 'gem', 'rewardPacks')
+                  'cards', 'gold', 'gem', 'rewardPacks', 'backtory_userId', 'pending_clan_id', 'invitaion_list')
 
 
 
