@@ -158,7 +158,7 @@ class ClanDetail(APIView):
     authentication_classes = (JSONWebTokenAuthentication, )
 
     @staticmethod
-    def get(pk):
+    def get(request, pk):
         clan = Clan.get_object(pk)
         clan = serializer.ClanProfileSerializer(clan)
         return Response(clan.data, status=status.HTTP_202_ACCEPTED)
@@ -310,7 +310,7 @@ class SearchClanByName(APIView):
     authentication_classes = (JSONWebTokenAuthentication, )
 
     @staticmethod
-    def get(query):
+    def get(request, query):
         # clans = Clan.objects.filter(Q(clanName__icontains=query) | Q(clanDescription__icontains=query) )[:20]
         clans = Clan.objects.filter(clanName__icontains=query)[:20]
         data = list()
