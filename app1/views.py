@@ -718,6 +718,7 @@ class UnpackReward(APIView):
         spend_time = int(time.time()) - pack.unlockStartTime
         remaining_time = pack_time - spend_time
         remaining_time = remaining_time if remaining_time > 0 else 0
+        remaining_time = pack_time if pack.unlockStartTime == -1 else remaining_time
         gem = 0
         unpack_type = request.data.get('unpack_type')
         if unpack_type is not None and unpack_type == 'gem':
