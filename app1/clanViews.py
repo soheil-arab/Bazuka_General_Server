@@ -477,7 +477,7 @@ class InviteUser(APIView):
         return Response({}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
-class AcceptUser(APIView):
+class AcceptInvite(APIView):
 
     permission_classes = (IsAuthenticated, )
     authentication_classes = (JSONWebTokenAuthentication, )
