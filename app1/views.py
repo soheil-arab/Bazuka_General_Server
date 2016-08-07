@@ -425,7 +425,7 @@ class UserList(APIView):
         backtory_user_id = user_data['userId']
         user.backtory_userId = backtory_user_id
         user.save()
-        return Response({"uuid": username, "password": password}, status=status.HTTP_201_CREATED)
+        return Response({"uuid": username, "password": password, 'userID': user.idUser}, status=status.HTTP_201_CREATED)
 
     def create_basic_user(self, username, password):
         try:
@@ -434,8 +434,6 @@ class UserList(APIView):
         except IntegrityError:
             username = uuid.uuid4().hex[:29]
             return self.create_basic_user(username, password)
-
-
 
 
 

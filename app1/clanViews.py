@@ -48,6 +48,28 @@ class ClanMembership(APIView):
                 if user.clanData is None:
                     clan_data = UserClanData.objects.create()
                     user.clanData = clan_data
+
+                user_id = user.backtory_userId
+                connectivity_id = '575ea689e4b0e357ac17fd31'
+                url = "https://ws.backtory.com/connectivity/chat/group/addMember"
+                # TODO : auth token master from cache
+                auth = "bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjpudWxsLCJpc19ndWVzdCI6ZmFsc2UsInNjb3BlIjpbIm1hc3RlciJdLCJleHAiOjE0NzE2NzU4MDEsImp0aSI6IjUzODc1MzEyLTY1MDktNDI3ZC04ZmRmLTEyODJkOTUyOTJmNiIsImNsaWVudF9pZCI6IjU3NGQ5YTg0ZTRiMDMzNzI0Njg5OTdmOCJ9.EtvXGKJ3AUesisjMKkJrgHKFFrbLL7ZYalg6TGVVvb4sFujq_xwt1aypkws25xm6ojZj1A7EUKfk1RjHIz-yXyI_w5_S3rrfo94EuRhXTtbhiEPlUr5ppxVXGXkhjchD22aB2fV9UASkxG21-kKuQmCkj8DyXVCrilBDNTqGg1sDq5xlvZukl7-yup7CV2AUBqNaLaowMS0OHtUoKusMTyzZ_Cn6OxYCKMfd4t9yg90tzhKN38sL6ynYp8tKcxYk25MwgM7q9i7cY8xFItczn9NSUzupr-ks_3gcBu6WegERyVUln1qRTejG0XJ6BArBxT8KGHQEg-VrFas6E_F3QA"
+                headers = {
+                    'Authorization': auth,
+                    'X-Backtory-Connectivity-Id': connectivity_id,
+                    "X-Backtory-User-Id": clan.backtory_group_owner,
+                    "Content-Type": "application/json"
+                }
+                data = {
+                    "groupId": clan.backtory_group_id,
+                    "userId": user_id,
+                }
+                r1 = requests.post(url, json=data, headers=headers)
+                print(r1.json())
+                if r1.status_code >= 300 or r1.status_code < 200:
+                    print('can not join group on backtory')
+                    #TODO: log and do it again :D
+
                 user.save()
                 clan_data = serializer.ClanSerializer(clan).data
                 return Response(clan_data, status=status.HTTP_201_CREATED)
@@ -59,7 +81,7 @@ class ClanMembership(APIView):
                 user.save()
         if action == "leave":
             user = request.user.user
-            # clan = Clan.get_object(pk=clan_pk)
+            clan = Clan.get_object(pk=clan_pk)
             if user.clanData.position != 3:
                 user.userClan = None
                 # TODO: update score and other things
@@ -68,6 +90,26 @@ class ClanMembership(APIView):
                 user.clanData.position = 0
                 user.clanData.save()
                 user.save()
+                user_id = user.backtory_userId
+                connectivity_id = '575ea689e4b0e357ac17fd31'
+                url = "https://ws.backtory.com/connectivity/chat/group/removeMember"
+                # TODO : auth token master from cache
+                auth = "bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjpudWxsLCJpc19ndWVzdCI6ZmFsc2UsInNjb3BlIjpbIm1hc3RlciJdLCJleHAiOjE0NzE2NzU4MDEsImp0aSI6IjUzODc1MzEyLTY1MDktNDI3ZC04ZmRmLTEyODJkOTUyOTJmNiIsImNsaWVudF9pZCI6IjU3NGQ5YTg0ZTRiMDMzNzI0Njg5OTdmOCJ9.EtvXGKJ3AUesisjMKkJrgHKFFrbLL7ZYalg6TGVVvb4sFujq_xwt1aypkws25xm6ojZj1A7EUKfk1RjHIz-yXyI_w5_S3rrfo94EuRhXTtbhiEPlUr5ppxVXGXkhjchD22aB2fV9UASkxG21-kKuQmCkj8DyXVCrilBDNTqGg1sDq5xlvZukl7-yup7CV2AUBqNaLaowMS0OHtUoKusMTyzZ_Cn6OxYCKMfd4t9yg90tzhKN38sL6ynYp8tKcxYk25MwgM7q9i7cY8xFItczn9NSUzupr-ks_3gcBu6WegERyVUln1qRTejG0XJ6BArBxT8KGHQEg-VrFas6E_F3QA"
+                headers = {
+                    'Authorization': auth,
+                    'X-Backtory-Connectivity-Id': connectivity_id,
+                    "X-Backtory-User-Id": clan.backtory_group_owner,
+                    "Content-Type": "application/json"
+                }
+                data = {
+                    "groupId": clan.backtory_group_id,
+                    "userId": user_id,
+                }
+                r1 = requests.post(url, json=data, headers=headers)
+                if r1.status_code != 201:
+                    print('can not leave group in backtory')
+                    #TODO: log and do it again :D
+
                 return Response({}, status=status.HTTP_201_CREATED)
             else:
                 return Response({'detail': "clanLeader can not leave the clan"}, status=status.HTTP_400_BAD_REQUEST)
@@ -175,84 +217,6 @@ class MyClanDetail(APIView):
         clan = user.userClan
         clan = serializer.ClanSerializer(clan)
         return Response(clan.data, status=status.HTTP_202_ACCEPTED)
-
-
-class ClanMember(APIView):
-
-    permission_classes = (IsAuthenticated, )
-    authentication_classes = (JSONWebTokenAuthentication, )
-
-    @staticmethod
-    def post(request, clan_pk, action):
-        if action == "join":
-            user = request.user.user
-            clan = Clan.get_object(pk=clan_pk)
-            user.userClan = clan
-            # TODO: update score and other things
-            if user.clanData is None:
-                clan_data = UserClanData.objects.create()
-                user.clanData = clan_data
-            user.save()
-
-            user_id = user.backtory_userId
-            connectivity_id = '575ea689e4b0e357ac17fd31'
-            url = "https://ws.backtory.com/connectivity/chat/group/addMember"
-            # TODO : auth token master from cache
-            auth = "bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjpudWxsLCJpc19ndWVzdCI6ZmFsc2UsInNjb3BlIjpbIm1hc3RlciJdLCJleHAiOjE0NzE2NzU4MDEsImp0aSI6IjUzODc1MzEyLTY1MDktNDI3ZC04ZmRmLTEyODJkOTUyOTJmNiIsImNsaWVudF9pZCI6IjU3NGQ5YTg0ZTRiMDMzNzI0Njg5OTdmOCJ9.EtvXGKJ3AUesisjMKkJrgHKFFrbLL7ZYalg6TGVVvb4sFujq_xwt1aypkws25xm6ojZj1A7EUKfk1RjHIz-yXyI_w5_S3rrfo94EuRhXTtbhiEPlUr5ppxVXGXkhjchD22aB2fV9UASkxG21-kKuQmCkj8DyXVCrilBDNTqGg1sDq5xlvZukl7-yup7CV2AUBqNaLaowMS0OHtUoKusMTyzZ_Cn6OxYCKMfd4t9yg90tzhKN38sL6ynYp8tKcxYk25MwgM7q9i7cY8xFItczn9NSUzupr-ks_3gcBu6WegERyVUln1qRTejG0XJ6BArBxT8KGHQEg-VrFas6E_F3QA"
-            headers = {
-                'Authorization': auth,
-                'X-Backtory-Connectivity-Id': connectivity_id,
-                "X-Backtory-User-Id": clan.backtory_group_owner,
-                "Content-Type": "application/json"
-            }
-            data = {
-                "groupId": clan.backtory_group_id,
-                "userId": user_id,
-            }
-            r1 = requests.post(url, json=data, headers=headers)
-            print(r1.json())
-            if r1.status_code != 201:
-                print('group not registered on backtory')
-                #TODO: log and do it again :D
-
-            clan = serializer.ClanSerializer(clan)
-            return Response(clan.data, status=status.HTTP_201_CREATED)
-        if action == "leave":
-            user = request.user.user
-            clan = Clan.get_object(pk=clan_pk)
-            if user.userClan == clan:
-                user.userClan = None
-                # TODO: update score and other things
-                user.clanData.donate_count = 0
-                user.clanData.lastRequestTime = 0
-                user.clanData.position = 0
-                user.clanData.save()
-                user.save()
-                user_id = user.backtory_userId
-                connectivity_id = '575ea689e4b0e357ac17fd31'
-                url = "https://ws.backtory.com/connectivity/chat/group/removeMember"
-                # TODO : auth token master from cache
-                auth = "bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjpudWxsLCJpc19ndWVzdCI6ZmFsc2UsInNjb3BlIjpbIm1hc3RlciJdLCJleHAiOjE0NzE2NzU4MDEsImp0aSI6IjUzODc1MzEyLTY1MDktNDI3ZC04ZmRmLTEyODJkOTUyOTJmNiIsImNsaWVudF9pZCI6IjU3NGQ5YTg0ZTRiMDMzNzI0Njg5OTdmOCJ9.EtvXGKJ3AUesisjMKkJrgHKFFrbLL7ZYalg6TGVVvb4sFujq_xwt1aypkws25xm6ojZj1A7EUKfk1RjHIz-yXyI_w5_S3rrfo94EuRhXTtbhiEPlUr5ppxVXGXkhjchD22aB2fV9UASkxG21-kKuQmCkj8DyXVCrilBDNTqGg1sDq5xlvZukl7-yup7CV2AUBqNaLaowMS0OHtUoKusMTyzZ_Cn6OxYCKMfd4t9yg90tzhKN38sL6ynYp8tKcxYk25MwgM7q9i7cY8xFItczn9NSUzupr-ks_3gcBu6WegERyVUln1qRTejG0XJ6BArBxT8KGHQEg-VrFas6E_F3QA"
-                headers = {
-                    'Authorization': auth,
-                    'X-Backtory-Connectivity-Id': connectivity_id,
-                    "X-Backtory-User-Id": clan.backtory_group_owner,
-                    "Content-Type": "application/json"
-                }
-                data = {
-                    "groupId": clan.backtory_group_id,
-                    "userId": user_id,
-                }
-                r1 = requests.post(url, json=data, headers=headers)
-                if r1.status_code != 201:
-                    print('group not registered on backtory')
-                    #TODO: log and do it again :D
-
-                return Response({}, status=status.HTTP_200_OK)
-            else:
-                return Response({'detail': "you are not member of this clan"}, status=status.HTTP_400_BAD_REQUEST)
-
-        return Response({'detail': "invalid action"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ClanList(APIView):
