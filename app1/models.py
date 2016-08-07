@@ -50,7 +50,7 @@ class User(models.Model):
     totalDonations = models.IntegerField(default=0)
     gem = models.IntegerField(default=0)
     gold = models.IntegerField(default=0)
-    clanData = models.OneToOneField('app1.UserClanData', blank=True, null=True)
+    clanData = models.OneToOneField('app1.UserClanData', related_name='user', blank=True, null=True)
     basicUser = models.OneToOneField(djangoUser, related_name='user', blank=True, null=True, unique=True)
     packCycle = ArrayField(models.IntegerField(), size=6, default=default_pack_cycle)
     kingHP = models.SmallIntegerField(default=200)
