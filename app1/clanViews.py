@@ -210,6 +210,7 @@ class ClanMember(APIView):
                 "userId": user_id,
             }
             r1 = requests.post(url, json=data, headers=headers)
+            print(r1.json())
             if r1.status_code != 201:
                 print('group not registered on backtory')
                 #TODO: log and do it again :D
