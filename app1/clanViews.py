@@ -301,6 +301,7 @@ class ClanList(APIView):
             clan_obj.backtory_group_id = group_id
             clan_obj.backtory_group_owner = user_id
             clan_obj.save()
+            user.save()
             return Response({'clan_data': clan.data, 'gold_data': gold_data}, status=status.HTTP_201_CREATED)
         return Response(clan.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
 
