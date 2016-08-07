@@ -196,7 +196,7 @@ class ClanMember(APIView):
 
             user_id = user.backtory_userId
             connectivity_id = '575ea689e4b0e357ac17fd31'
-            url = "ws.backtory.com/connectivity/chat/group/addMember"
+            url = "https://ws.backtory.com/connectivity/chat/group/addMember"
             # TODO : auth token master from cache
             auth = "bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjpudWxsLCJpc19ndWVzdCI6ZmFsc2UsInNjb3BlIjpbIm1hc3RlciJdLCJleHAiOjE0NzE2NzU4MDEsImp0aSI6IjUzODc1MzEyLTY1MDktNDI3ZC04ZmRmLTEyODJkOTUyOTJmNiIsImNsaWVudF9pZCI6IjU3NGQ5YTg0ZTRiMDMzNzI0Njg5OTdmOCJ9.EtvXGKJ3AUesisjMKkJrgHKFFrbLL7ZYalg6TGVVvb4sFujq_xwt1aypkws25xm6ojZj1A7EUKfk1RjHIz-yXyI_w5_S3rrfo94EuRhXTtbhiEPlUr5ppxVXGXkhjchD22aB2fV9UASkxG21-kKuQmCkj8DyXVCrilBDNTqGg1sDq5xlvZukl7-yup7CV2AUBqNaLaowMS0OHtUoKusMTyzZ_Cn6OxYCKMfd4t9yg90tzhKN38sL6ynYp8tKcxYk25MwgM7q9i7cY8xFItczn9NSUzupr-ks_3gcBu6WegERyVUln1qRTejG0XJ6BArBxT8KGHQEg-VrFas6E_F3QA"
             headers = {
@@ -229,7 +229,7 @@ class ClanMember(APIView):
                 user.save()
                 user_id = user.backtory_userId
                 connectivity_id = '575ea689e4b0e357ac17fd31'
-                url = "ws.backtory.com/connectivity/chat/group/removeMember"
+                url = "https://ws.backtory.com/connectivity/chat/group/removeMember"
                 # TODO : auth token master from cache
                 auth = "bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjpudWxsLCJpc19ndWVzdCI6ZmFsc2UsInNjb3BlIjpbIm1hc3RlciJdLCJleHAiOjE0NzE2NzU4MDEsImp0aSI6IjUzODc1MzEyLTY1MDktNDI3ZC04ZmRmLTEyODJkOTUyOTJmNiIsImNsaWVudF9pZCI6IjU3NGQ5YTg0ZTRiMDMzNzI0Njg5OTdmOCJ9.EtvXGKJ3AUesisjMKkJrgHKFFrbLL7ZYalg6TGVVvb4sFujq_xwt1aypkws25xm6ojZj1A7EUKfk1RjHIz-yXyI_w5_S3rrfo94EuRhXTtbhiEPlUr5ppxVXGXkhjchD22aB2fV9UASkxG21-kKuQmCkj8DyXVCrilBDNTqGg1sDq5xlvZukl7-yup7CV2AUBqNaLaowMS0OHtUoKusMTyzZ_Cn6OxYCKMfd4t9yg90tzhKN38sL6ynYp8tKcxYk25MwgM7q9i7cY8xFItczn9NSUzupr-ks_3gcBu6WegERyVUln1qRTejG0XJ6BArBxT8KGHQEg-VrFas6E_F3QA"
                 headers = {
@@ -279,7 +279,7 @@ class ClanList(APIView):
             gold_data = user.add_gold(-1000)
             user_id = user.backtory_userId
             connectivity_id = '575ea689e4b0e357ac17fd31'
-            url = "ws.backtory.com/connectivity/chat/group/create"
+            url = "https://ws.backtory.com/connectivity/chat/group/create"
             # TODO : auth token master from cache
             auth = "bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjpudWxsLCJpc19ndWVzdCI6ZmFsc2UsInNjb3BlIjpbIm1hc3RlciJdLCJleHAiOjE0NzE2NzU4MDEsImp0aSI6IjUzODc1MzEyLTY1MDktNDI3ZC04ZmRmLTEyODJkOTUyOTJmNiIsImNsaWVudF9pZCI6IjU3NGQ5YTg0ZTRiMDMzNzI0Njg5OTdmOCJ9.EtvXGKJ3AUesisjMKkJrgHKFFrbLL7ZYalg6TGVVvb4sFujq_xwt1aypkws25xm6ojZj1A7EUKfk1RjHIz-yXyI_w5_S3rrfo94EuRhXTtbhiEPlUr5ppxVXGXkhjchD22aB2fV9UASkxG21-kKuQmCkj8DyXVCrilBDNTqGg1sDq5xlvZukl7-yup7CV2AUBqNaLaowMS0OHtUoKusMTyzZ_Cn6OxYCKMfd4t9yg90tzhKN38sL6ynYp8tKcxYk25MwgM7q9i7cY8xFItczn9NSUzupr-ks_3gcBu6WegERyVUln1qRTejG0XJ6BArBxT8KGHQEg-VrFas6E_F3QA"
             headers = {
