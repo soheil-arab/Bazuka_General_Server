@@ -15,7 +15,123 @@ from app1.clanConf import DonationConf
 import requests as requests
 import time
 import json
+from enum import Enum
 
+class MsgType(Enum):
+    text = 0
+    donate_request = 1
+    donate_response = 2
+    friendly_battle = 3
+    news = 4
+    control_message = 5
+
+class NewsType(Enum):
+    user_join = 0
+    user_join_request = 1
+    user_leave = 2
+    user_kick = 3
+    user_promote = 4
+    user_demote = 5
+    user_accept = 6
+    user_decline = 7
+    user_accept_invite = 8
+
+def MessageWrapper(msg_body, msg_type):
+    msg_obj = {
+        'msg_type': msg_type.value,
+        'msg_body': msg_body,
+        'msg_time': int(time.time())
+    }
+    return msg_obj
+
+def NewsMessageWrapper(data, news_type):
+    msg_obj = {
+        'news_type': news_type.value,
+        'news_metadata': data
+    }
+    return msg_obj
+
+def PushMessageToGroup(msg, group_id):
+    connectivity_id = '575ea689e4b0e357ac17fd31'
+    url = "ws.backtory.com/connectivity/chat/group/push"
+    # TODO : auth token master from cache
+    auth = "bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjpudWxsLCJpc19ndWVzdCI6ZmFsc2UsInNjb3BlIjpbIm1hc3RlciJdLCJleHAiOjE0NzE2NzU4MDEsImp0aSI6IjUzODc1MzEyLTY1MDktNDI3ZC04ZmRmLTEyODJkOTUyOTJmNiIsImNsaWVudF9pZCI6IjU3NGQ5YTg0ZTRiMDMzNzI0Njg5OTdmOCJ9.EtvXGKJ3AUesisjMKkJrgHKFFrbLL7ZYalg6TGVVvb4sFujq_xwt1aypkws25xm6ojZj1A7EUKfk1RjHIz-yXyI_w5_S3rrfo94EuRhXTtbhiEPlUr5ppxVXGXkhjchD22aB2fV9UASkxG21-kKuQmCkj8DyXVCrilBDNTqGg1sDq5xlvZukl7-yup7CV2AUBqNaLaowMS0OHtUoKusMTyzZ_Cn6OxYCKMfd4t9yg90tzhKN38sL6ynYp8tKcxYk25MwgM7q9i7cY8xFItczn9NSUzupr-ks_3gcBu6WegERyVUln1qRTejG0XJ6BArBxT8KGHQEg-VrFas6E_F3QA"
+    headers = {
+        'Authorization': auth,
+        'X-Backtory-Connectivity-Id': connectivity_id,
+        "Content-Type": "application/json"
+    }
+    data = {
+        "groupId": group_id,
+        "message": msg
+    }
+    r1 = requests.post(url, json=data, headers=headers)
+    if r1.status_code != 201:
+        print('message not pushed in group')
+        #TODO: log and do it again :D
+
+# def PushMessageToUser(msg, user_id):
+#     connectivity_id = '575ea689e4b0e357ac17fd31'
+#     url = "ws.backtory.com/connectivity/chat/group/push"
+#     # TODO : auth token master from cache
+#     auth = "bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjpudWxsLCJpc19ndWVzdCI6ZmFsc2UsInNjb3BlIjpbIm1hc3RlciJdLCJleHAiOjE0NzE2NzU4MDEsImp0aSI6IjUzODc1MzEyLTY1MDktNDI3ZC04ZmRmLTEyODJkOTUyOTJmNiIsImNsaWVudF9pZCI6IjU3NGQ5YTg0ZTRiMDMzNzI0Njg5OTdmOCJ9.EtvXGKJ3AUesisjMKkJrgHKFFrbLL7ZYalg6TGVVvb4sFujq_xwt1aypkws25xm6ojZj1A7EUKfk1RjHIz-yXyI_w5_S3rrfo94EuRhXTtbhiEPlUr5ppxVXGXkhjchD22aB2fV9UASkxG21-kKuQmCkj8DyXVCrilBDNTqGg1sDq5xlvZukl7-yup7CV2AUBqNaLaowMS0OHtUoKusMTyzZ_Cn6OxYCKMfd4t9yg90tzhKN38sL6ynYp8tKcxYk25MwgM7q9i7cY8xFItczn9NSUzupr-ks_3gcBu6WegERyVUln1qRTejG0XJ6BArBxT8KGHQEg-VrFas6E_F3QA"
+#     headers = {
+#         'Authorization': auth,
+#         'X-Backtory-Connectivity-Id': connectivity_id,
+#         "Content-Type": "application/json"
+#     }
+#     data = {
+#         "groupId": group_id,
+#         "message": msg
+#     }
+#     r1 = requests.post(url, json=data, headers=headers)
+#     if r1.status_code != 201:
+#         print('message not pushed in group')
+#         #TODO: log and do it again :D
+#
+
+def AddUserToGroup(backtory_group_id, backtory_group_owner, user_id):
+
+    connectivity_id = '575ea689e4b0e357ac17fd31'
+    url = "https://ws.backtory.com/connectivity/chat/group/addMember"
+    # TODO : auth token master from cache
+    auth = "bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjpudWxsLCJpc19ndWVzdCI6ZmFsc2UsInNjb3BlIjpbIm1hc3RlciJdLCJleHAiOjE0NzE2NzU4MDEsImp0aSI6IjUzODc1MzEyLTY1MDktNDI3ZC04ZmRmLTEyODJkOTUyOTJmNiIsImNsaWVudF9pZCI6IjU3NGQ5YTg0ZTRiMDMzNzI0Njg5OTdmOCJ9.EtvXGKJ3AUesisjMKkJrgHKFFrbLL7ZYalg6TGVVvb4sFujq_xwt1aypkws25xm6ojZj1A7EUKfk1RjHIz-yXyI_w5_S3rrfo94EuRhXTtbhiEPlUr5ppxVXGXkhjchD22aB2fV9UASkxG21-kKuQmCkj8DyXVCrilBDNTqGg1sDq5xlvZukl7-yup7CV2AUBqNaLaowMS0OHtUoKusMTyzZ_Cn6OxYCKMfd4t9yg90tzhKN38sL6ynYp8tKcxYk25MwgM7q9i7cY8xFItczn9NSUzupr-ks_3gcBu6WegERyVUln1qRTejG0XJ6BArBxT8KGHQEg-VrFas6E_F3QA"
+    headers = {
+        'Authorization': auth,
+        'X-Backtory-Connectivity-Id': connectivity_id,
+        "X-Backtory-User-Id": backtory_group_owner,
+        "Content-Type": "application/json"
+    }
+    data = {
+        "groupId": backtory_group_id,
+        "userId": user_id,
+    }
+    r1 = requests.post(url, json=data, headers=headers)
+    print(r1.json())
+    if r1.status_code >= 300 or r1.status_code < 200:
+        print('can not join group on backtory')
+        #TODO: log and do it again :D
+
+
+def RemoveUserFromGroup(backtory_group_id, backtory_group_owner, user_id):
+    connectivity_id = '575ea689e4b0e357ac17fd31'
+    url = "https://ws.backtory.com/connectivity/chat/group/removeMember"
+    # TODO : auth token master from cache
+    auth = "bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjpudWxsLCJpc19ndWVzdCI6ZmFsc2UsInNjb3BlIjpbIm1hc3RlciJdLCJleHAiOjE0NzE2NzU4MDEsImp0aSI6IjUzODc1MzEyLTY1MDktNDI3ZC04ZmRmLTEyODJkOTUyOTJmNiIsImNsaWVudF9pZCI6IjU3NGQ5YTg0ZTRiMDMzNzI0Njg5OTdmOCJ9.EtvXGKJ3AUesisjMKkJrgHKFFrbLL7ZYalg6TGVVvb4sFujq_xwt1aypkws25xm6ojZj1A7EUKfk1RjHIz-yXyI_w5_S3rrfo94EuRhXTtbhiEPlUr5ppxVXGXkhjchD22aB2fV9UASkxG21-kKuQmCkj8DyXVCrilBDNTqGg1sDq5xlvZukl7-yup7CV2AUBqNaLaowMS0OHtUoKusMTyzZ_Cn6OxYCKMfd4t9yg90tzhKN38sL6ynYp8tKcxYk25MwgM7q9i7cY8xFItczn9NSUzupr-ks_3gcBu6WegERyVUln1qRTejG0XJ6BArBxT8KGHQEg-VrFas6E_F3QA"
+    headers = {
+        'Authorization': auth,
+        'X-Backtory-Connectivity-Id': connectivity_id,
+        "X-Backtory-User-Id": backtory_group_owner,
+        "Content-Type": "application/json"
+    }
+    data = {
+        "groupId": backtory_group_id,
+        "userId": user_id,
+    }
+    r1 = requests.post(url, json=data, headers=headers)
+    if r1.status_code != 201:
+        print('can not leave group in backtory')
+        #TODO: log and do it again :D
 
 
 class ClanMembership(APIView):
@@ -48,29 +164,16 @@ class ClanMembership(APIView):
                 if user.clanData is None:
                     clan_data = UserClanData.objects.create()
                     user.clanData = clan_data
-
                 user_id = user.backtory_userId
-                connectivity_id = '575ea689e4b0e357ac17fd31'
-                url = "https://ws.backtory.com/connectivity/chat/group/addMember"
-                # TODO : auth token master from cache
-                auth = "bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjpudWxsLCJpc19ndWVzdCI6ZmFsc2UsInNjb3BlIjpbIm1hc3RlciJdLCJleHAiOjE0NzE2NzU4MDEsImp0aSI6IjUzODc1MzEyLTY1MDktNDI3ZC04ZmRmLTEyODJkOTUyOTJmNiIsImNsaWVudF9pZCI6IjU3NGQ5YTg0ZTRiMDMzNzI0Njg5OTdmOCJ9.EtvXGKJ3AUesisjMKkJrgHKFFrbLL7ZYalg6TGVVvb4sFujq_xwt1aypkws25xm6ojZj1A7EUKfk1RjHIz-yXyI_w5_S3rrfo94EuRhXTtbhiEPlUr5ppxVXGXkhjchD22aB2fV9UASkxG21-kKuQmCkj8DyXVCrilBDNTqGg1sDq5xlvZukl7-yup7CV2AUBqNaLaowMS0OHtUoKusMTyzZ_Cn6OxYCKMfd4t9yg90tzhKN38sL6ynYp8tKcxYk25MwgM7q9i7cY8xFItczn9NSUzupr-ks_3gcBu6WegERyVUln1qRTejG0XJ6BArBxT8KGHQEg-VrFas6E_F3QA"
-                headers = {
-                    'Authorization': auth,
-                    'X-Backtory-Connectivity-Id': connectivity_id,
-                    "X-Backtory-User-Id": clan.backtory_group_owner,
-                    "Content-Type": "application/json"
-                }
-                data = {
-                    "groupId": clan.backtory_group_id,
-                    "userId": user_id,
-                }
-                r1 = requests.post(url, json=data, headers=headers)
-                print(r1.json())
-                if r1.status_code >= 300 or r1.status_code < 200:
-                    print('can not join group on backtory')
-                    #TODO: log and do it again :D
-
+                AddUserToGroup(clan.backtory_group_id, clan.backtory_group_owner, user_id)
                 user.save()
+
+                # backtory push msg
+                join_data = serializer.ClanUserSerializer(user).data
+                news_obj = NewsMessageWrapper(join_data, NewsType.user_join)
+                msg_obj = MessageWrapper(news_obj, MsgType.news)
+                PushMessageToGroup(msg_obj, clan.backtory_group_id)
+
                 clan_data = serializer.ClanSerializer(clan).data
                 return Response(clan_data, status=status.HTTP_201_CREATED)
             elif clan.clanType == 1:
@@ -79,6 +182,13 @@ class ClanMembership(APIView):
                 clan.save()
                 user.pending_clan_id = clan.idClan
                 user.save()
+
+                # backtory push msg
+                join_req_data = serializer.ClanUserSerializer(user).data
+                news_obj = NewsMessageWrapper(join_req_data, NewsType.user_join_request)
+                msg_obj = MessageWrapper(news_obj, MsgType.news)
+                PushMessageToGroup(msg_obj, clan.backtory_group_id)
+
         if action == "leave":
             user = request.user.user
             clan = Clan.get_object(pk=clan_pk)
@@ -91,28 +201,17 @@ class ClanMembership(APIView):
                 user.clanData.save()
                 user.save()
                 user_id = user.backtory_userId
-                connectivity_id = '575ea689e4b0e357ac17fd31'
-                url = "https://ws.backtory.com/connectivity/chat/group/removeMember"
-                # TODO : auth token master from cache
-                auth = "bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjpudWxsLCJpc19ndWVzdCI6ZmFsc2UsInNjb3BlIjpbIm1hc3RlciJdLCJleHAiOjE0NzE2NzU4MDEsImp0aSI6IjUzODc1MzEyLTY1MDktNDI3ZC04ZmRmLTEyODJkOTUyOTJmNiIsImNsaWVudF9pZCI6IjU3NGQ5YTg0ZTRiMDMzNzI0Njg5OTdmOCJ9.EtvXGKJ3AUesisjMKkJrgHKFFrbLL7ZYalg6TGVVvb4sFujq_xwt1aypkws25xm6ojZj1A7EUKfk1RjHIz-yXyI_w5_S3rrfo94EuRhXTtbhiEPlUr5ppxVXGXkhjchD22aB2fV9UASkxG21-kKuQmCkj8DyXVCrilBDNTqGg1sDq5xlvZukl7-yup7CV2AUBqNaLaowMS0OHtUoKusMTyzZ_Cn6OxYCKMfd4t9yg90tzhKN38sL6ynYp8tKcxYk25MwgM7q9i7cY8xFItczn9NSUzupr-ks_3gcBu6WegERyVUln1qRTejG0XJ6BArBxT8KGHQEg-VrFas6E_F3QA"
-                headers = {
-                    'Authorization': auth,
-                    'X-Backtory-Connectivity-Id': connectivity_id,
-                    "X-Backtory-User-Id": clan.backtory_group_owner,
-                    "Content-Type": "application/json"
-                }
-                data = {
-                    "groupId": clan.backtory_group_id,
-                    "userId": user_id,
-                }
-                r1 = requests.post(url, json=data, headers=headers)
-                if r1.status_code != 201:
-                    print('can not leave group in backtory')
-                    #TODO: log and do it again :D
+                RemoveUserFromGroup(clan.backtory_group_id, clan.backtory_group_owner, user_id)
+
+                # backtory push msg
+                leave_data = serializer.ClanUserSerializer(user).data
+                news_obj = NewsMessageWrapper(leave_data, NewsType.user_leave)
+                msg_obj = MessageWrapper(news_obj, MsgType.news)
+                PushMessageToGroup(msg_obj, clan.backtory_group_id)
 
                 return Response({}, status=status.HTTP_201_CREATED)
             else:
-                return Response({'detail': "clanLeader can not leave the clan"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'detail': "clanLeader can not leave the clan"}, status=status.HTTP_406_NOT_ACCEPTABLE)
         return Response({'detail': "invalid action"}, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -126,6 +225,8 @@ class Donate(APIView):
         user = request.user.user
 
         donate_obj = Donation.objects.get(pk=donate_pk)
+        if donate_obj.clan != user.userClan:
+            return Response({'detail': 'you are not in a same clan'}, status=status.HTTP_406_NOT_ACCEPTABLE)
         if donate_obj.requiredCardCount == donate_obj.donatedCardCount:
             return Response({'detail': 'donate done : {0}/{1}'.format(donate_obj.donatedCardCount,
                                                                       donate_obj.requiredCardCount)},
@@ -185,13 +286,25 @@ class Donate(APIView):
         donate_obj.donatedCardCount += 1
         donate_obj.save()
 
+        card_data = {
+            'card_count': donator_card.cardCount,
+            'card_type_id': donator_card.cardType_id,
+            'card_delta': -1
+        }
+
         # TODO: do something after donation object done
         # if donate_obj.donatedCardCount == donate_obj.requiredCardCount:
         #     print('done')
 
         data = serializer.DonationSerializer(donate_obj).data
-        return Response({'donate_data': data, 'xp_data': xp_data, 'gold_data': gold_data},
-                        status=status.HTTP_201_CREATED)
+
+        # backtory push msg
+        clan = user.userClan
+        msg_obj = MessageWrapper(data, MsgType.donate_response)
+        PushMessageToGroup(json.dumps(msg_obj), clan.backtory_group_id)
+
+        return Response({'donate_data': data, 'xp_data': xp_data, 'gold_data': gold_data, 'card_data': card_data},
+                        status=status.HTTP_200_OK)
 
 
 class ClanDetail(APIView):
@@ -314,6 +427,11 @@ class DonateRequest(APIView):
         user.clanData.save()
 
         data = serializer.DonationSerializer(donate_obj).data
+        # backtory push msg
+        clan = user.userClan
+        msg_obj = MessageWrapper(data, MsgType.donate_request)
+        PushMessageToGroup(json.dumps(msg_obj), clan.backtory_group_id)
+
         return Response(data, status=status.HTTP_201_CREATED)
 
 
@@ -329,6 +447,8 @@ class PromoteUser(APIView):
         promoted_user_id = int(data['userID'])
         user_clan_data = user.clanData
         promoted_user = User.get_object(pk=promoted_user_id)
+        if promoted_user.userClan != user.userClan:
+            return Response({'detail': 'your not in a same clan'}, status=status.HTTP_406_NOT_ACCEPTABLE)
         if user_clan_data.position < 2:
             return Response({'detail': 'your position in clan < co-leader'}, status=status.HTTP_406_NOT_ACCEPTABLE)
         elif user_clan_data.position is 2:
@@ -344,6 +464,12 @@ class PromoteUser(APIView):
             'userID': promoted_user_id,
             'new_position': promoted_user.clanData.position
         }
+        # backtory push msg
+        clan = user.userClan
+        news_obj = NewsMessageWrapper(response_data, NewsType.user_promote)
+        msg_obj = MessageWrapper(news_obj, MsgType.news)
+        PushMessageToGroup(json.dumps(msg_obj), clan.backtory_group_id)
+
         return Response(response_data, status=status.HTTP_200_OK)
 
 
@@ -359,6 +485,8 @@ class DemoteUser(APIView):
         demoted_user_id = int(data['userID'])
         user_clan_data = user.clanData
         demoted_user = User.get_object(pk=demoted_user_id)
+        if user.userClan != demoted_user.userClan:
+            return Response({'detail': 'your not in a same clan'}, status=status.HTTP_406_NOT_ACCEPTABLE)
         if user_clan_data.position < 2:
             return Response({'detail': 'your position in clan < co-leader'}, status=status.HTTP_406_NOT_ACCEPTABLE)
         elif user_clan_data.position is 2:
@@ -374,6 +502,13 @@ class DemoteUser(APIView):
             'userID': demoted_user_id,
             'new_position': demoted_user.clanData.position
         }
+
+        # backtory push msg
+        clan = user.userClan
+        news_obj = NewsMessageWrapper(response_data, NewsType.user_demote)
+        msg_obj = MessageWrapper(news_obj, MsgType.news)
+        PushMessageToGroup(json.dumps(msg_obj), clan.backtory_group_id)
+
         return Response(response_data, status=status.HTTP_200_OK)
 
 
@@ -396,6 +531,8 @@ class AcceptUser(APIView):
             clan.waiting_list = waiting_list
             clan.save()
             accepted_user = User.get_object(pk=int(accepted_user_id))
+            if user.userClan != accepted_user.userClan:
+                return Response({'detail': 'you are not in a same clan'}, status=status.HTTP_406_NOT_ACCEPTABLE)
             accepted_user.userClan = clan
             if accepted_user.clanData is None:
                 clan_data = UserClanData.objects.create()
@@ -404,7 +541,13 @@ class AcceptUser(APIView):
             accepted_user.clanData.donate_count = 0
             accepted_user.clanData.lastRequestTime = -1
             accepted_user.clanData.save()
+            AddUserToGroup(clan.backtory_group_id, clan.backtory_group_owner, accepted_user.backtory_userId)
             user_clan_info = serializer.ClanUserSerializer(accepted_user).data
+            # backtory push msg
+            news_obj = NewsMessageWrapper(user_clan_info, NewsType.user_accept)
+            msg_obj = MessageWrapper(news_obj, MsgType.news)
+            PushMessageToGroup(json.dumps(msg_obj), clan.backtory_group_id)
+
             return Response({'accepted_user': user_clan_info}, status=status.HTTP_200_OK)
         else:
             return Response({'detail': 'accepted user does not exist in waiting list'}, status=status.HTTP_406_NOT_ACCEPTABLE)
@@ -428,6 +571,11 @@ class DeclineUser(APIView):
             del waiting_list[declined_user_id]
             clan.waiting_list = waiting_list
             clan.save()
+            # backtory push msg
+            news_obj = NewsMessageWrapper({'declined_user_id': declined_user_id}, NewsType.user_decline)
+            msg_obj = MessageWrapper(news_obj, MsgType.news)
+            PushMessageToGroup(json.dumps(msg_obj), clan.backtory_group_id)
+
         else:
             return Response({'detail': 'declined user does not exist in waiting list'}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
@@ -445,7 +593,11 @@ class KickMember(APIView):
         kicked_user = User.get_object(pk=kicked_user_id)
         if user.clanData.position <= kicked_user.clanData.position:
             return Response({"detail": "can not kick this position"}, status=status.HTTP_406_NOT_ACCEPTABLE)
+        if user.userClan != kicked_user.userClan:
+            return Response({'detail': 'you are not in a same clan'}, status=status.HTTP_406_NOT_ACCEPTABLE)
         else:
+            clan = kicked_user.userClan
+            RemoveUserFromGroup(clan.backtory_group_id, clan.backtory_group_owner, kicked_user.backtory_userId)
             kicked_user.userClan = None
             # TODO: update score and other things
             kicked_user.clanData.donate_count = 0
@@ -453,6 +605,11 @@ class KickMember(APIView):
             kicked_user.clanData.position = 0
             kicked_user.clanData.save()
             kicked_user.save()
+            # backtory push msg
+            news_obj = NewsMessageWrapper({'kicked_user_id': kicked_user_id}, NewsType.user_kick)
+            msg_obj = MessageWrapper(news_obj, MsgType.news)
+            PushMessageToGroup(json.dumps(msg_obj), clan.backtory_group_id)
+
             return Response({}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
@@ -471,6 +628,8 @@ class InviteUser(APIView):
 
         invite_user_id = data['invite_user_id']
         invite_user = User.get_object(pk=invite_user_id)
+        if not(user.userClan is None):
+            return Response({'detail': 'this user currently had joined in another clan'}, status=status.HTTP_406_NOT_ACCEPTABLE)
         data = {'time': int(time.time()), 'clan_name': clan.clanName}
         invite_user.invitaion_list[str(clan.idClan)] = json.dumps(data)
         invite_user.save()
@@ -500,7 +659,14 @@ class AcceptInvite(APIView):
             user.clanData.donate_count = 0
             user.clanData.lastRequestTime = -1
             user.clanData.save()
+            AddUserToGroup(clan.backtory_group_id, clan.backtory_group_owner, user.backtory_userId)
             clan_info = serializer.ClanSerializer(clan).data
+            # backtory push msg
+            user_info = serializer.ClanUserSerializer(user).data
+            news_obj = NewsMessageWrapper(user_info, NewsType.user_accept_invite)
+            msg_obj = MessageWrapper(news_obj, MsgType.news)
+            PushMessageToGroup(json.dumps(msg_obj), clan.backtory_group_id)
+
             return Response({'accepted_user': clan_info}, status=status.HTTP_200_OK)
         else:
             return Response({'detail': 'accepted clan does not exist in invitation list'}, status=status.HTTP_406_NOT_ACCEPTABLE)
