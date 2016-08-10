@@ -403,6 +403,9 @@ class UserList(APIView):
         password = m.hexdigest()
         user = self.create_basic_user(username, password)
         user = User.objects.create(basicUser=user)
+        deck = user.deck1
+        for card_type_id in deck:
+            self.create_card(card_type_id, user.idUser)
         auth_id = "574d9a84e4b03372468997f8"
         url = "https://api.backtory.com/auth/users"
         headers = {
@@ -434,6 +437,10 @@ class UserList(APIView):
         except IntegrityError:
             username = uuid.uuid4().hex[:29]
             return self.create_basic_user(username, password)
+
+    def create_card(self, card_type, user_id):
+        card_obj = Card.objects.create(user=user_id, cardType=card_type)
+        return card_obj
 
 
 
@@ -733,9 +740,8 @@ class UnpackReward(APIView):
             if spend_time < pack_time:
                 return Response({'detail': '{0} seconds remain to unlock pack'.format(remaining_time)},
                                 status=status.HTTP_406_NOT_ACCEPTABLE)
-        # TODO: uncomment delete line
-        # pack.delete()
-        # user.packEmptySlots[pack.slotNumber] = 1
+        user.packEmptySlots[pack.slotNumber] = 1
+        pack.delete()
         gold, cards = self.open_pack(pack)
         card_obj_list = user.add_cards(cards)
         gold_data = user.add_gold(gold)

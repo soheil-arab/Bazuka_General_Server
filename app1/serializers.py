@@ -86,7 +86,7 @@ class ClanSerializer(serializers.ModelSerializer):
     class Meta:
         model = Clan
         fields = ('idClan', 'clanName', 'clanDescription', 'clanLocation', 'clanType',
-                  'clanMinimumTrophies', 'clanScore', 'users', 'clanBadge', 'donations','backtory_group_id')
+                  'clanMinimumTrophies', 'clanScore', 'users', 'clanBadge', 'donations', 'backtory_group_id')
 
 class PackSerializer(serializers.ModelSerializer):
     # unlock_required_gem = serializers.SerializerMethodField('unlock_gem')
@@ -132,6 +132,7 @@ class SelfSerializer(serializers.ModelSerializer):
     clan_name = serializers.CharField(source='userClan.clanName', read_only=True)
     clan_id = serializers.IntegerField(source='userClan.idClan', read_only=True)
     clan_badge = serializers.IntegerField(source='userClan.clanBadge', read_only=True)
+    clan_backtory_group_id = serializers.SerializerMethodField()
     cards = CardSerializer(many=True)
     rewardPacks = PackSerializer(many=True)
     # xp_data = serializers.SerializerMethodField()
@@ -162,12 +163,15 @@ class SelfSerializer(serializers.ModelSerializer):
             'user_league_level_up': 0
         }
 
+    def get_clan_backtory_group_id(self, user):
+        return user.userClan.backtory_group_id
+
     class Meta:
         model = User
         fields = ('idUser', 'username', 'winCount', 'loseCount', 'deck1', 'xp', 'next_level_xp', 'level', 'clan_id',
                   'clan_name', 'clan_badge', 'totalDonations', 'trophiesCount', 'leagueLevel', 'next_league_trophy',
                   'cards', 'gold', 'gem', 'rewardPacks', 'backtory_userId', 'pending_clan_id', 'pending_clan_name',
-                  'invitaion_list')
+                  'invitaion_list', 'clan_backtory_group_id')
 
 
 
