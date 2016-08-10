@@ -50,7 +50,7 @@ class DonationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Donation
         fields = ('id', 'owner_userID', 'owner_username', 'requiredCardCount', 'donatedCardCount', 'donators', 'card_type_id',
-                  'remaining_time')
+                  'remaining_time', 'startTime')
 
 class ClanUserSerializer(serializers.ModelSerializer):
     donate_count = serializers.IntegerField(source='clanData.donate_count', read_only=True)
@@ -166,7 +166,8 @@ class SelfSerializer(serializers.ModelSerializer):
         model = User
         fields = ('idUser', 'username', 'winCount', 'loseCount', 'deck1', 'xp', 'next_level_xp', 'level', 'clan_id',
                   'clan_name', 'clan_badge', 'totalDonations', 'trophiesCount', 'leagueLevel', 'next_league_trophy',
-                  'cards', 'gold', 'gem', 'rewardPacks', 'backtory_userId', 'pending_clan_id', 'invitaion_list')
+                  'cards', 'gold', 'gem', 'rewardPacks', 'backtory_userId', 'pending_clan_id', 'pending_clan_name',
+                  'invitaion_list')
 
 
 

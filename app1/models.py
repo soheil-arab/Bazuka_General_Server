@@ -60,6 +60,7 @@ class User(models.Model):
     backtory_userId = models.CharField(max_length=64, null=True, blank=True)
     invitaion_list = HStoreField(default={}, null=True, blank=True)
     pending_clan_id = models.IntegerField(default=-1, null=True, blank=True)
+    pending_clan_name = models.CharField(max_length=64, null=True, blank=True)
 
     def __str__(self):
         return 'user_{0}@{1}'.format(self.idUser, self.username)

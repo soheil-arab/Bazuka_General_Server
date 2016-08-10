@@ -175,12 +175,16 @@ class ClanMembership(APIView):
                 PushMessageToGroup(msg_obj, clan.backtory_group_id)
 
                 clan_data = serializer.ClanSerializer(clan).data
-                return Response(clan_data, status=status.HTTP_201_CREATED)
+                return Response(clan_data, status=status.HTTP_200_OK)
             elif clan.clanType == 1:
+                if user.pending_clan_id != -1:
+                    return Response({'detail': 'pending for clan {0}'.format(user.pending_clan_name)},
+                                    status=status.HTTP_406_NOT_ACCEPTABLE)
                 data = {'time': int(time.time()), 'username': user.username}
                 clan.waiting_list[str(user.idUser)] = json.dumps(data)
                 clan.save()
                 user.pending_clan_id = clan.idClan
+                user.pending_clan_name = clan.clanName
                 user.save()
 
                 # backtory push msg
@@ -189,6 +193,11 @@ class ClanMembership(APIView):
                 msg_obj = MessageWrapper(news_obj, MsgType.news)
                 PushMessageToGroup(msg_obj, clan.backtory_group_id)
 
+                data = {
+                    'pending_clan_id': clan.idClan,
+                    'pending_clan_name': clan.clanName
+                }
+                return Response(data, status=status.HTTP_200_OK)
         if action == "leave":
             user = request.user.user
             clan = Clan.get_object(pk=clan_pk)
@@ -209,10 +218,10 @@ class ClanMembership(APIView):
                 msg_obj = MessageWrapper(news_obj, MsgType.news)
                 PushMessageToGroup(msg_obj, clan.backtory_group_id)
 
-                return Response({}, status=status.HTTP_201_CREATED)
+                return Response({}, status=status.HTTP_200_OK)
             else:
                 return Response({'detail': "clanLeader can not leave the clan"}, status=status.HTTP_406_NOT_ACCEPTABLE)
-        return Response({'detail': "invalid action"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'detail': "invalid action"}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
 class Donate(APIView):
@@ -461,8 +470,11 @@ class PromoteUser(APIView):
             promoted_user.clanData.position += 1
         promoted_user.clanData.save()
         response_data = {
-            'userID': promoted_user_id,
-            'new_position': promoted_user.clanData.position
+            'promoted_userId': promoted_user_id,
+            'promoted_username': promoted_user.username,
+            'promoter_userId': user.idUser,
+            'promoter_username': user.username,
+            'promoted_new_position': promoted_user.clanData.position
         }
         # backtory push msg
         clan = user.userClan
@@ -499,8 +511,11 @@ class DemoteUser(APIView):
             demoted_user.clanData.position -= 1
         demoted_user.clanData.save()
         response_data = {
-            'userID': demoted_user_id,
-            'new_position': demoted_user.clanData.position
+            'demoted_userId': demoted_user_id,
+            'demoted_username': demoted_user.username,
+            'demoter_username': user.username,
+            'demoter_userId': user.idUser,
+            'demoted_new_position': demoted_user.clanData.position
         }
 
         # backtory push msg
@@ -541,6 +556,9 @@ class AcceptUser(APIView):
             accepted_user.clanData.donate_count = 0
             accepted_user.clanData.lastRequestTime = -1
             accepted_user.clanData.save()
+            accepted_user.pending_clan_id = -1
+            accepted_user.pending_clan_name = None
+            accepted_user.save()
             AddUserToGroup(clan.backtory_group_id, clan.backtory_group_owner, accepted_user.backtory_userId)
             user_clan_info = serializer.ClanUserSerializer(accepted_user).data
             # backtory push msg
