@@ -624,7 +624,8 @@ class KickMember(APIView):
             kicked_user.clanData.save()
             kicked_user.save()
             # backtory push msg
-            news_obj = NewsMessageWrapper({'kicked_user_id': kicked_user_id}, NewsType.user_kick)
+            news_obj = NewsMessageWrapper({'kicked_user_id': kicked_user_id, 'kicked_username': kicked_user.username},
+                                          NewsType.user_kick)
             msg_obj = MessageWrapper(news_obj, MsgType.news)
             PushMessageToGroup(json.dumps(msg_obj), clan.backtory_group_id)
 
