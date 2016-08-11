@@ -405,7 +405,7 @@ class UserList(APIView):
         user = User.objects.create(basicUser=user)
         deck = user.deck1
         for card_type_id in deck:
-            self.create_card(card_type_id, user.idUser)
+            self.create_card(card_type_id, user)
         auth_id = "574d9a84e4b03372468997f8"
         url = "https://api.backtory.com/auth/users"
         headers = {
@@ -438,9 +438,9 @@ class UserList(APIView):
             username = uuid.uuid4().hex[:29]
             return self.create_basic_user(username, password)
 
-    def create_card(self, card_type_id, user_id):
+    def create_card(self, card_type_id, user):
         card_type = CardType.objects.get(Cardid=card_type_id)
-        card_obj = Card.objects.create(user=user_id, cardType=card_type)
+        card_obj = Card.objects.create(user=user, cardType=card_type)
         return card_obj
 
 
