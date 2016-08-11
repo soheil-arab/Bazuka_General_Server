@@ -132,7 +132,7 @@ class SelfSerializer(serializers.ModelSerializer):
     clan_name = serializers.CharField(source='userClan.clanName', read_only=True)
     clan_id = serializers.IntegerField(source='userClan.idClan', read_only=True)
     clan_badge = serializers.IntegerField(source='userClan.clanBadge', read_only=True)
-    clan_backtory_group_id = serializers.SerializerMethodField()
+    clan_backtory_group_id = serializers.CharField(source='userClan.backtory_group_id', read_only=True)
     cards = CardSerializer(many=True)
     rewardPacks = PackSerializer(many=True)
     # xp_data = serializers.SerializerMethodField()
@@ -163,8 +163,6 @@ class SelfSerializer(serializers.ModelSerializer):
             'user_league_level_up': 0
         }
 
-    def get_clan_backtory_group_id(self, user):
-        return user.userClan.backtory_group_id
 
     class Meta:
         model = User
