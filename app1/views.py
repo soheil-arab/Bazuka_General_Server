@@ -424,7 +424,6 @@ class UserList(APIView):
         if r1.status_code != 201:
             print('user not registered on backtory')
             #TODO: log and do it again :D
-        print('kiram too behzad o sarpia')
         user_data = r1.json()
         backtory_user_id = user_data['userId']
         user.backtory_userId = backtory_user_id
