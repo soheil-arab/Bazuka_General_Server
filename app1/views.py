@@ -438,7 +438,8 @@ class UserList(APIView):
             username = uuid.uuid4().hex[:29]
             return self.create_basic_user(username, password)
 
-    def create_card(self, card_type, user_id):
+    def create_card(self, card_type_id, user_id):
+        card_type = CardType.objects.get(Cardid=card_type_id)
         card_obj = Card.objects.create(user=user_id, cardType=card_type)
         return card_obj
 
@@ -466,9 +467,9 @@ class CardUpgrade(APIView):
     authentication_classes = (JSONWebTokenAuthentication, )
 
     def post(self, request, cardID, Format=None):
-        user = request.user.user
         cards = Card.objects.filter(user=user.idUser).filter(cardType__Cardid=cardID)
         if len(cards) != 1:
+        user = request.user.user
             return Response({'detail': 'card/user not found'}, status=status.HTTP_400_BAD_REQUEST)
 
         card = cards[0]
