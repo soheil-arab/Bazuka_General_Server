@@ -468,8 +468,8 @@ class CardUpgrade(APIView):
 
     def post(self, request, cardID, Format=None):
         cards = Card.objects.filter(user=user.idUser).filter(cardType__Cardid=cardID)
-        if len(cards) != 1:
         user = request.user.user
+        if len(cards) != 1:
             return Response({'detail': 'card/user not found'}, status=status.HTTP_400_BAD_REQUEST)
 
         card = cards[0]
