@@ -428,7 +428,7 @@ class DonateRequest(APIView):
         donate_obj.owner = user
         donate_obj.cardType = card_type
         donate_obj.clan = user.userClan
-        donate_obj.requiredCardCount = DonationConf.donate_request_capacity(user.leagueLevel, card_type_id)
+        donate_obj.requiredCardCount = DonationConf.donate_request_capacity(user.leagueLevel, card_type.cardRarity)
         donate_obj.donators = {}
         donate_obj.save()
 
