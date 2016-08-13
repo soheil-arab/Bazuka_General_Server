@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="ce6e9ed2-4479-433f-bfc7-d84accb84277" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app1/clanViews.py" afterPath="$PROJECT_DIR$/app1/clanViews.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="Bazuka_General_Server.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -38,7 +37,7 @@
         <entry file="file://$PROJECT_DIR$/app1/views.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="397" column="11" selection-start-line="397" selection-start-column="11" selection-end-line="397" selection-end-column="11" />
+              <caret line="398" column="11" selection-start-line="398" selection-start-column="11" selection-end-line="398" selection-end-column="11" />
               <folding>
                 <element signature="e#0#54#0" expanded="true" />
               </folding>
@@ -49,21 +48,21 @@
       <file leaf-file-name="clanViews.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app1/clanViews.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.4897059">
-              <caret line="430" column="114" selection-start-line="430" selection-start-column="114" selection-end-line="430" selection-end-column="114" />
+            <state vertical-scroll-proportion="0.33235294">
+              <caret line="55" column="19" selection-start-line="55" selection-start-column="19" selection-end-line="55" selection-end-column="19" />
               <folding>
                 <element signature="e#544#660#0" expanded="false" />
                 <element signature="e#919#1058#0" expanded="false" />
                 <element signature="e#1105#1209#0" expanded="false" />
-                <element signature="e#3690#4955#0" expanded="false" />
-                <element signature="e#5037#6261#0" expanded="false" />
-                <element signature="e#10529#14650#0" expanded="false" />
-                <element signature="e#14685#14987#0" expanded="false" />
-                <element signature="e#15024#15342#0" expanded="false" />
-                <element signature="e#15174#15342#0" expanded="false" />
-                <element signature="e#18106#18622#0" expanded="false" />
-                <element signature="e#20080#21928#0" expanded="false" />
-                <element signature="e#21963#23851#0" expanded="false" />
+                <element signature="e#3698#4963#0" expanded="false" />
+                <element signature="e#5045#6269#0" expanded="false" />
+                <element signature="e#10537#14658#0" expanded="false" />
+                <element signature="e#14693#14995#0" expanded="false" />
+                <element signature="e#15032#15350#0" expanded="false" />
+                <element signature="e#15182#15350#0" expanded="false" />
+                <element signature="e#18114#18630#0" expanded="false" />
+                <element signature="e#20088#21936#0" expanded="false" />
+                <element signature="e#21971#23859#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -93,7 +92,7 @@
         <entry file="file://$PROJECT_DIR$/app1/serializers.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="143" column="26" selection-start-line="143" selection-start-column="26" selection-end-line="143" selection-end-column="26" />
+              <caret line="140" column="26" selection-start-line="140" selection-start-column="26" selection-end-line="140" selection-end-column="26" />
               <folding>
                 <element signature="e#22#94#0" expanded="true" />
                 <element signature="e#256#1294#0" expanded="false" />
@@ -1002,7 +1001,7 @@
     <entry file="file://$PROJECT_DIR$/app1/views.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="397" column="11" selection-start-line="397" selection-start-column="11" selection-end-line="397" selection-end-column="11" />
+          <caret line="398" column="11" selection-start-line="398" selection-start-column="11" selection-end-line="398" selection-end-column="11" />
           <folding>
             <element signature="e#0#54#0" expanded="true" />
           </folding>
@@ -1022,7 +1021,7 @@
     <entry file="file://$PROJECT_DIR$/app1/serializers.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="143" column="26" selection-start-line="143" selection-start-column="26" selection-end-line="143" selection-end-column="26" />
+          <caret line="140" column="26" selection-start-line="140" selection-start-column="26" selection-end-line="140" selection-end-column="26" />
           <folding>
             <element signature="e#22#94#0" expanded="true" />
             <element signature="e#256#1294#0" expanded="false" />
@@ -1054,21 +1053,21 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app1/clanViews.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.4897059">
-          <caret line="430" column="114" selection-start-line="430" selection-start-column="114" selection-end-line="430" selection-end-column="114" />
+        <state vertical-scroll-proportion="0.33235294">
+          <caret line="55" column="19" selection-start-line="55" selection-start-column="19" selection-end-line="55" selection-end-column="19" />
           <folding>
             <element signature="e#544#660#0" expanded="false" />
             <element signature="e#919#1058#0" expanded="false" />
             <element signature="e#1105#1209#0" expanded="false" />
-            <element signature="e#3690#4955#0" expanded="false" />
-            <element signature="e#5037#6261#0" expanded="false" />
-            <element signature="e#10529#14650#0" expanded="false" />
-            <element signature="e#14685#14987#0" expanded="false" />
-            <element signature="e#15024#15342#0" expanded="false" />
-            <element signature="e#15174#15342#0" expanded="false" />
-            <element signature="e#18106#18622#0" expanded="false" />
-            <element signature="e#20080#21928#0" expanded="false" />
-            <element signature="e#21963#23851#0" expanded="false" />
+            <element signature="e#3698#4963#0" expanded="false" />
+            <element signature="e#5045#6269#0" expanded="false" />
+            <element signature="e#10537#14658#0" expanded="false" />
+            <element signature="e#14693#14995#0" expanded="false" />
+            <element signature="e#15032#15350#0" expanded="false" />
+            <element signature="e#15182#15350#0" expanded="false" />
+            <element signature="e#18114#18630#0" expanded="false" />
+            <element signature="e#20088#21936#0" expanded="false" />
+            <element signature="e#21971#23859#0" expanded="false" />
           </folding>
         </state>
       </provider>
