@@ -66,7 +66,7 @@ def PushMessageToGroup(msg, group_id):
         "message": msg
     }
     r1 = requests.post(url, json=data, headers=headers)
-    if r1.status_code != 201:
+    if r1.status_code >= 300 or r1.status_code < 200:
         print('message not pushed in group')
         #TODO: log and do it again :D
 
@@ -130,7 +130,8 @@ def RemoveUserFromGroup(backtory_group_id, backtory_group_owner, user_id):
         "userId": user_id,
     }
     r1 = requests.post(url, json=data, headers=headers)
-    if r1.status_code != 201:
+    print(r1)
+    if r1.status_code >= 300 or r1.status_code < 200:
         print('can not leave group in backtory')
         #TODO: log and do it again :D
 
