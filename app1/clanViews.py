@@ -173,7 +173,7 @@ class ClanMembership(APIView):
                 join_data = serializer.ClanUserSerializer(user).data
                 news_obj = NewsMessageWrapper(join_data, NewsType.user_join)
                 msg_obj = MessageWrapper(news_obj, MsgType.news)
-                PushMessageToGroup(msg_obj, clan.backtory_group_id)
+                PushMessageToGroup(json.dumps(msg_obj), clan.backtory_group_id)
 
                 clan_data = serializer.ClanSerializer(clan).data
                 return Response(clan_data, status=status.HTTP_200_OK)
@@ -192,7 +192,7 @@ class ClanMembership(APIView):
                 join_req_data = serializer.ClanUserSerializer(user).data
                 news_obj = NewsMessageWrapper(join_req_data, NewsType.user_join_request)
                 msg_obj = MessageWrapper(news_obj, MsgType.news)
-                PushMessageToGroup(msg_obj, clan.backtory_group_id)
+                PushMessageToGroup(json.dumps(msg_obj), clan.backtory_group_id)
 
                 data = {
                     'pending_clan_id': clan.idClan,
@@ -217,7 +217,7 @@ class ClanMembership(APIView):
                 leave_data = serializer.ClanUserSerializer(user).data
                 news_obj = NewsMessageWrapper(leave_data, NewsType.user_leave)
                 msg_obj = MessageWrapper(news_obj, MsgType.news)
-                PushMessageToGroup(msg_obj, clan.backtory_group_id)
+                PushMessageToGroup(json.dumps(msg_obj), clan.backtory_group_id)
 
                 return Response({}, status=status.HTTP_200_OK)
             else:
