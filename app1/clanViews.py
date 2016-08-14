@@ -107,7 +107,8 @@ def AddUserToGroup(backtory_group_id, backtory_group_owner, user_id):
         "userId": user_id,
     }
     r1 = requests.post(url, json=data, headers=headers)
-    print(r1.json())
+    print(r1.status_code)
+    print(r1)
     if r1.status_code >= 300 or r1.status_code < 200:
         print('can not join group on backtory')
         #TODO: log and do it again :D
