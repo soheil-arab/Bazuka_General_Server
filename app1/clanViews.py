@@ -590,7 +590,7 @@ class DeclineUser(APIView):
             clan.waiting_list = waiting_list
             clan.save()
             # backtory push msg
-            news_obj = NewsMessageWrapper({'declined_user_id': declined_user_id}, NewsType.user_decline)
+            news_obj = NewsMessageWrapper({'declined_user_id': int(declined_user_id)}, NewsType.user_decline)
             msg_obj = MessageWrapper(news_obj, MsgType.news)
             PushMessageToGroup(json.dumps(msg_obj), clan.backtory_group_id)
 
@@ -624,7 +624,7 @@ class KickMember(APIView):
             kicked_user.clanData.save()
             kicked_user.save()
             # backtory push msg
-            news_obj = NewsMessageWrapper({'kicked_user_id': kicked_user_id, 'kicked_username': kicked_user.username},
+            news_obj = NewsMessageWrapper({'kicked_user_id': kicked_user.idUser, 'kicked_username': kicked_user.username},
                                           NewsType.user_kick)
             msg_obj = MessageWrapper(news_obj, MsgType.news)
             PushMessageToGroup(json.dumps(msg_obj), clan.backtory_group_id)
