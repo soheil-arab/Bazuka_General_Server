@@ -254,9 +254,9 @@ class Donate(APIView):
                 return Response({'detail': 'you can\'t donate more cards for this donate object'}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
         donate_user = donate_obj.owner
-        if donate_user.userClan != user.userClan:
-            return Response({'detail': 'invalid request -> you are not in same clan'},
-                            status=status.HTTP_406_NOT_ACCEPTABLE)
+        # if donate_user.userClan != user.userClan:
+        #     return Response({'detail': 'invalid request -> you are not in same clan'},
+        #                     status=status.HTTP_406_NOT_ACCEPTABLE)
         if user is donate_user:
             return Response({'detail': 'you can\'t donate for yourself :D'},
                             status=status.HTTP_406_NOT_ACCEPTABLE)
@@ -297,11 +297,7 @@ class Donate(APIView):
         donate_obj.donatedCardCount += 1
         donate_obj.save()
 
-        card_data = {
-            'card_count': donator_card.cardCount,
-            'card_type_id': donator_card.cardType_id,
-            'card_delta': -1
-        }
+        card_data = serializer.CardSerializer(donator_card)
 
         # TODO: do something after donation object done
         # if donate_obj.donatedCardCount == donate_obj.requiredCardCount:
@@ -421,7 +417,7 @@ class DonateRequest(APIView):
         passed_time = int(time.time()) - last_req
 
         remain_time = DonationConf.donate_request_period() - passed_time
-        if remain_time > 0:
+        if remain_time > 0 and last_req != -1:
             return Response({"detail": "{0} seconds remain for next request".format(remain_time)}, status=status.HTTP_406_NOT_ACCEPTABLE)
         print(request.data)
         card_type_id = request.data["card_type_id"]

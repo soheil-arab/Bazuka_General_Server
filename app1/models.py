@@ -358,7 +358,7 @@ class Donation(models.Model):
     requiredCardCount = models.IntegerField(default=0)
     donatedCardCount = models.IntegerField(default=0)
     donators = HStoreField()
-    startTime = models.IntegerField(default=current_time())
+    startTime = models.IntegerField(default=current_time)
     cardType = models.ForeignKey(CardType, null=True, blank=True)
     clan = models.ForeignKey(Clan, null=True, blank=True)
 
