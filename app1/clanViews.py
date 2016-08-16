@@ -297,7 +297,8 @@ class Donate(APIView):
         donate_obj.donatedCardCount += 1
         donate_obj.save()
 
-        card_data = serializer.CardSerializer(donator_card).data
+        card_data = dict(serializer.CardSerializer(donator_card).data)
+        card_data['card_delta'] = -1
 
         # TODO: do something after donation object done
         # if donate_obj.donatedCardCount == donate_obj.requiredCardCount:
