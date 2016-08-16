@@ -297,7 +297,7 @@ class Donate(APIView):
         donate_obj.donatedCardCount += 1
         donate_obj.save()
 
-        card_data = serializer.CardSerializer(donator_card)
+        card_data = serializer.CardSerializer(donator_card).data
 
         # TODO: do something after donation object done
         # if donate_obj.donatedCardCount == donate_obj.requiredCardCount:
@@ -419,7 +419,6 @@ class DonateRequest(APIView):
         remain_time = DonationConf.donate_request_period() - passed_time
         if remain_time > 0 and last_req != -1:
             return Response({"detail": "{0} seconds remain for next request".format(remain_time)}, status=status.HTTP_406_NOT_ACCEPTABLE)
-        print(request.data)
         card_type_id = request.data["card_type_id"]
         card_type = CardType.objects.get(Cardid=card_type_id)
         donate_obj = Donation()
