@@ -544,8 +544,6 @@ class AcceptUser(APIView):
             clan.waiting_list = waiting_list
             clan.save()
             accepted_user = User.get_object(pk=int(accepted_user_id))
-            if user.userClan != accepted_user.userClan:
-                return Response({'detail': 'you are not in a same clan'}, status=status.HTTP_406_NOT_ACCEPTABLE)
             accepted_user.userClan = clan
             if accepted_user.clanData is None:
                 clan_data = UserClanData.objects.create()
