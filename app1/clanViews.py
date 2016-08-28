@@ -398,6 +398,7 @@ class SearchClanByName(APIView):
 
     @staticmethod
     def get(request, query):
+        print(query)
         # clans = Clan.objects.filter(Q(clanName__icontains=query) | Q(clanDescription__icontains=query) )[:20]
         clans = Clan.objects.filter(clanName__icontains=query)[:20]
         data = list()
