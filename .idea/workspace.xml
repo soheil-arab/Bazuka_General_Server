@@ -3,7 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="ce6e9ed2-4479-433f-bfc7-d84accb84277" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app1/clanViews.py" afterPath="$PROJECT_DIR$/app1/clanViews.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app1/urls.py" afterPath="$PROJECT_DIR$/app1/urls.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app1/views.py" afterPath="$PROJECT_DIR$/app1/views.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="Bazuka_General_Server.iws" />
@@ -35,11 +35,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="views.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="views.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app1/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="398" column="11" selection-start-line="398" selection-start-column="11" selection-end-line="398" selection-end-column="11" />
+            <state vertical-scroll-proportion="0.67746687">
+              <caret line="470" column="0" selection-start-line="470" selection-start-column="0" selection-end-line="470" selection-end-column="0" />
               <folding>
                 <element signature="e#0#54#0" expanded="true" />
               </folding>
@@ -47,11 +47,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="clanViews.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="clanViews.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app1/clanViews.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.49539876">
-              <caret line="402" column="67" selection-start-line="402" selection-start-column="67" selection-end-line="402" selection-end-column="67" />
+            <state vertical-scroll-proportion="-24.62963">
+              <caret line="397" column="0" selection-start-line="397" selection-start-column="0" selection-end-line="397" selection-end-column="0" />
               <folding>
                 <element signature="e#23#77#0" expanded="true" />
                 <element signature="e#544#660#0" expanded="false" />
@@ -67,7 +67,7 @@
         <entry file="file://$PROJECT_DIR$/app1/urls.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="41" column="55" selection-start-line="41" selection-start-column="55" selection-end-line="41" selection-end-column="55" />
+              <caret line="29" column="36" selection-start-line="29" selection-start-column="36" selection-end-line="29" selection-end-column="36" />
               <folding />
             </state>
           </provider>
@@ -133,11 +133,11 @@
         <option value="$PROJECT_DIR$/app1/admin.py" />
         <option value="$PROJECT_DIR$/app1/tests.py" />
         <option value="$PROJECT_DIR$/app1/clanConf.py" />
-        <option value="$PROJECT_DIR$/app1/views.py" />
         <option value="$PROJECT_DIR$/app1/serializers.py" />
         <option value="$PROJECT_DIR$/app1/models.py" />
         <option value="$PROJECT_DIR$/app1/urls.py" />
         <option value="$PROJECT_DIR$/app1/clanViews.py" />
+        <option value="$PROJECT_DIR$/app1/views.py" />
       </list>
     </option>
   </component>
@@ -499,9 +499,9 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="49" y="18" width="1871" height="1062" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25396827" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25396827" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.22116402" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.19901586" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -908,16 +908,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app1/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="398" column="11" selection-start-line="398" selection-start-column="11" selection-end-line="398" selection-end-column="11" />
-          <folding>
-            <element signature="e#0#54#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app1/admin.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -946,24 +936,34 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app1/urls.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="41" column="55" selection-start-line="41" selection-start-column="55" selection-end-line="41" selection-end-column="55" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app1/clanViews.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.49539876">
-          <caret line="402" column="67" selection-start-line="402" selection-start-column="67" selection-end-line="402" selection-end-column="67" />
+        <state vertical-scroll-proportion="-24.62963">
+          <caret line="397" column="0" selection-start-line="397" selection-start-column="0" selection-end-line="397" selection-end-column="0" />
           <folding>
             <element signature="e#23#77#0" expanded="true" />
             <element signature="e#544#660#0" expanded="false" />
             <element signature="e#919#1058#0" expanded="false" />
             <element signature="e#1105#1209#0" expanded="false" />
             <element signature="e#23972#25885#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app1/urls.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="29" column="36" selection-start-line="29" selection-start-column="36" selection-end-line="29" selection-end-column="36" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app1/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.67746687">
+          <caret line="470" column="0" selection-start-line="470" selection-start-column="0" selection-end-line="470" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#54#0" expanded="true" />
           </folding>
         </state>
       </provider>

@@ -467,8 +467,8 @@ class CardUpgrade(APIView):
     authentication_classes = (JSONWebTokenAuthentication, )
 
     def post(self, request, cardID, Format=None):
-        cards = Card.objects.filter(user=user.idUser).filter(cardType__Cardid=cardID)
         user = request.user.user
+        cards = Card.objects.filter(user=user.idUser).filter(cardType__Cardid=cardID)
         if len(cards) != 1:
             return Response({'detail': 'card/user not found'}, status=status.HTTP_400_BAD_REQUEST)
 
