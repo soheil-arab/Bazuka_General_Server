@@ -392,6 +392,7 @@ class ClanList(APIView):
             url = "https://ws.backtory.com/connectivity/chat/group/create"
             # TODO : auth token master from cache
             auth = get_backtory_token()
+            print(auth)
             headers = {
                 'Authorization': auth,
                 'X-Backtory-Connectivity-Id': connectivity_id,
@@ -407,7 +408,7 @@ class ClanList(APIView):
                 print('group not registered on backtory')
                 #TODO: log and do it again :D
             print("status code: " + str(r1.status_code))
-            print("backtory text: "+ r1.text)
+            print("backtory text: " + r1.text)
             group_id = r1.json()['groupId']
             clan_obj.backtory_group_id = group_id
             clan_obj.backtory_group_owner = user_id
