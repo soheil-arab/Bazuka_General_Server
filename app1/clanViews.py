@@ -25,8 +25,9 @@ def get_backtory_token():
     current_time = int(time.time())
 
     auth_key = '574d9a84e4b087d77759fc50'
-    url = "https://api.backtory.com/auth/login"
     auth_id = "574d9a84e4b03372468997f8"
+    url = "https://api.backtory.com/auth/login"
+
     headers = {
         'X-Backtory-Authentication-Id': auth_id,
         'X-Backtory-Authentication-Key': auth_key
@@ -40,7 +41,8 @@ def get_backtory_token():
             print(r1.json())
             backtory_master_token = r1.json()['access_token']
             backtory_token_expire = current_time
-
+    print(backtory_master_token)
+    print('kir to behzad')
     return "bearer " + backtory_master_token
 class MsgType(Enum):
     text = 0
