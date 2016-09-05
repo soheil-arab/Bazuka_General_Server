@@ -49,13 +49,13 @@
       <file leaf-file-name="clanViews.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app1/clanViews.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.68441063">
-              <caret line="41" column="13" selection-start-line="41" selection-start-column="13" selection-end-line="41" selection-end-column="13" />
+            <state vertical-scroll-proportion="0.82129276">
+              <caret line="45" column="0" selection-start-line="45" selection-start-column="0" selection-end-line="45" selection-end-column="0" />
               <folding>
                 <element signature="e#23#77#0" expanded="true" />
-                <element signature="e#1522#1638#0" expanded="false" />
-                <element signature="e#1897#2036#0" expanded="false" />
-                <element signature="e#2083#2187#0" expanded="false" />
+                <element signature="e#1543#1659#0" expanded="false" />
+                <element signature="e#1918#2057#0" expanded="false" />
+                <element signature="e#2104#2208#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -932,13 +932,13 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app1/clanViews.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.68441063">
-          <caret line="41" column="13" selection-start-line="41" selection-start-column="13" selection-end-line="41" selection-end-column="13" />
+        <state vertical-scroll-proportion="0.82129276">
+          <caret line="45" column="0" selection-start-line="45" selection-start-column="0" selection-end-line="45" selection-end-column="0" />
           <folding>
             <element signature="e#23#77#0" expanded="true" />
-            <element signature="e#1522#1638#0" expanded="false" />
-            <element signature="e#1897#2036#0" expanded="false" />
-            <element signature="e#2083#2187#0" expanded="false" />
+            <element signature="e#1543#1659#0" expanded="false" />
+            <element signature="e#1918#2057#0" expanded="false" />
+            <element signature="e#2104#2208#0" expanded="false" />
           </folding>
         </state>
       </provider>

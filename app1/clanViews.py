@@ -32,9 +32,8 @@ def get_backtory_token():
         'X-Backtory-Authentication-Id': auth_id,
         'X-Backtory-Authentication-Key': auth_key
     }
-
-    if backtory_token_expire + 1209500 > current_time:
-        print('login needs')
+    print('{0} \t {1}'.format(current_time, backtory_token_expire + 1209500))
+    if backtory_token_expire + 1209500 < current_time:
         r1 = requests.post(url, headers=headers)
         print(r1.status_code)
         if r1.status_code >= 300 or r1.status_code < 200:
@@ -44,7 +43,6 @@ def get_backtory_token():
             backtory_master_token = r1.json()['access_token']
             backtory_token_expire = current_time
     print(backtory_master_token)
-    print('kir to behzad')
     return "bearer " + backtory_master_token
 class MsgType(Enum):
     text = 0
