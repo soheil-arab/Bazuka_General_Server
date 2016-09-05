@@ -40,6 +40,8 @@ urlpatterns = [
 
     # search clan by name
     url(r'^v2/clans/search/(?P<query>[a-zA-z1-9]+)/$', clanViews.SearchClanByName.as_view()),
+    # advanced search clan by name
+    url(r'^v2/clans/asearch/$', clanViews.AdvancedSearchClan.as_view()),
     #   create new clan
     url(r'^v2/clans/$', clanViews.ClanList.as_view()),
     #   get my clan Profile

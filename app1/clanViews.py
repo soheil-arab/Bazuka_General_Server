@@ -17,6 +17,30 @@ import time
 import json
 from enum import Enum
 
+backtory_master_token = ""
+backtory_token_expire = 0
+def get_backtory_token():
+    global backtory_master_token
+    global backtory_token_expire
+    current_time = int(time.time())
+
+    auth_key = '574d9a84e4b087d77759fc50'
+    url = "https://api.backtory.com/auth/login"
+    auth_id = "574d9a84e4b03372468997f8"
+    headers = {
+        'X-Backtory-Authentication-Id': auth_id,
+        'X-Backtory-Authentication-Key': auth_key
+    }
+
+    if backtory_token_expire + 1209500 > current_time:
+        r1 = requests.post(url, headers=headers)
+        if r1.status_code >= 300 or r1.status_code < 200:
+            print("failed to login as master in backtory :D")
+        else:
+            backtory_master_token = r1.json()['access_token']
+            backtory_token_expire = current_time
+
+    return "bearer " + backtory_master_token
 class MsgType(Enum):
     text = 0
     donate_request = 1
@@ -55,7 +79,7 @@ def PushMessageToGroup(msg, group_id):
     connectivity_id = '575ea689e4b0e357ac17fd31'
     url = "https://ws.backtory.com/connectivity/chat/group/push"
     # TODO : auth token master from cache
-    auth = "bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjpudWxsLCJpc19ndWVzdCI6ZmFsc2UsInNjb3BlIjpbIm1hc3RlciJdLCJleHAiOjE0NzE2NzU4MDEsImp0aSI6IjUzODc1MzEyLTY1MDktNDI3ZC04ZmRmLTEyODJkOTUyOTJmNiIsImNsaWVudF9pZCI6IjU3NGQ5YTg0ZTRiMDMzNzI0Njg5OTdmOCJ9.EtvXGKJ3AUesisjMKkJrgHKFFrbLL7ZYalg6TGVVvb4sFujq_xwt1aypkws25xm6ojZj1A7EUKfk1RjHIz-yXyI_w5_S3rrfo94EuRhXTtbhiEPlUr5ppxVXGXkhjchD22aB2fV9UASkxG21-kKuQmCkj8DyXVCrilBDNTqGg1sDq5xlvZukl7-yup7CV2AUBqNaLaowMS0OHtUoKusMTyzZ_Cn6OxYCKMfd4t9yg90tzhKN38sL6ynYp8tKcxYk25MwgM7q9i7cY8xFItczn9NSUzupr-ks_3gcBu6WegERyVUln1qRTejG0XJ6BArBxT8KGHQEg-VrFas6E_F3QA"
+    auth = get_backtory_token()
     headers = {
         'Authorization': auth,
         'X-Backtory-Connectivity-Id': connectivity_id,
@@ -95,7 +119,7 @@ def AddUserToGroup(backtory_group_id, backtory_group_owner, user_id):
     connectivity_id = '575ea689e4b0e357ac17fd31'
     url = "https://ws.backtory.com/connectivity/chat/group/addMember"
     # TODO : auth token master from cache
-    auth = "bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjpudWxsLCJpc19ndWVzdCI6ZmFsc2UsInNjb3BlIjpbIm1hc3RlciJdLCJleHAiOjE0NzE2NzU4MDEsImp0aSI6IjUzODc1MzEyLTY1MDktNDI3ZC04ZmRmLTEyODJkOTUyOTJmNiIsImNsaWVudF9pZCI6IjU3NGQ5YTg0ZTRiMDMzNzI0Njg5OTdmOCJ9.EtvXGKJ3AUesisjMKkJrgHKFFrbLL7ZYalg6TGVVvb4sFujq_xwt1aypkws25xm6ojZj1A7EUKfk1RjHIz-yXyI_w5_S3rrfo94EuRhXTtbhiEPlUr5ppxVXGXkhjchD22aB2fV9UASkxG21-kKuQmCkj8DyXVCrilBDNTqGg1sDq5xlvZukl7-yup7CV2AUBqNaLaowMS0OHtUoKusMTyzZ_Cn6OxYCKMfd4t9yg90tzhKN38sL6ynYp8tKcxYk25MwgM7q9i7cY8xFItczn9NSUzupr-ks_3gcBu6WegERyVUln1qRTejG0XJ6BArBxT8KGHQEg-VrFas6E_F3QA"
+    auth = get_backtory_token()
     headers = {
         'Authorization': auth,
         'X-Backtory-Connectivity-Id': connectivity_id,
@@ -118,7 +142,7 @@ def RemoveUserFromGroup(backtory_group_id, backtory_group_owner, user_id):
     connectivity_id = '575ea689e4b0e357ac17fd31'
     url = "https://ws.backtory.com/connectivity/chat/group/removeMember"
     # TODO : auth token master from cache
-    auth = "bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjpudWxsLCJpc19ndWVzdCI6ZmFsc2UsInNjb3BlIjpbIm1hc3RlciJdLCJleHAiOjE0NzE2NzU4MDEsImp0aSI6IjUzODc1MzEyLTY1MDktNDI3ZC04ZmRmLTEyODJkOTUyOTJmNiIsImNsaWVudF9pZCI6IjU3NGQ5YTg0ZTRiMDMzNzI0Njg5OTdmOCJ9.EtvXGKJ3AUesisjMKkJrgHKFFrbLL7ZYalg6TGVVvb4sFujq_xwt1aypkws25xm6ojZj1A7EUKfk1RjHIz-yXyI_w5_S3rrfo94EuRhXTtbhiEPlUr5ppxVXGXkhjchD22aB2fV9UASkxG21-kKuQmCkj8DyXVCrilBDNTqGg1sDq5xlvZukl7-yup7CV2AUBqNaLaowMS0OHtUoKusMTyzZ_Cn6OxYCKMfd4t9yg90tzhKN38sL6ynYp8tKcxYk25MwgM7q9i7cY8xFItczn9NSUzupr-ks_3gcBu6WegERyVUln1qRTejG0XJ6BArBxT8KGHQEg-VrFas6E_F3QA"
+    auth = get_backtory_token()
     headers = {
         'Authorization': auth,
         'X-Backtory-Connectivity-Id': connectivity_id,
@@ -367,7 +391,7 @@ class ClanList(APIView):
             connectivity_id = '575ea689e4b0e357ac17fd31'
             url = "https://ws.backtory.com/connectivity/chat/group/create"
             # TODO : auth token master from cache
-            auth = "bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjpudWxsLCJpc19ndWVzdCI6ZmFsc2UsInNjb3BlIjpbIm1hc3RlciJdLCJleHAiOjE0NzE2NzU4MDEsImp0aSI6IjUzODc1MzEyLTY1MDktNDI3ZC04ZmRmLTEyODJkOTUyOTJmNiIsImNsaWVudF9pZCI6IjU3NGQ5YTg0ZTRiMDMzNzI0Njg5OTdmOCJ9.EtvXGKJ3AUesisjMKkJrgHKFFrbLL7ZYalg6TGVVvb4sFujq_xwt1aypkws25xm6ojZj1A7EUKfk1RjHIz-yXyI_w5_S3rrfo94EuRhXTtbhiEPlUr5ppxVXGXkhjchD22aB2fV9UASkxG21-kKuQmCkj8DyXVCrilBDNTqGg1sDq5xlvZukl7-yup7CV2AUBqNaLaowMS0OHtUoKusMTyzZ_Cn6OxYCKMfd4t9yg90tzhKN38sL6ynYp8tKcxYk25MwgM7q9i7cY8xFItczn9NSUzupr-ks_3gcBu6WegERyVUln1qRTejG0XJ6BArBxT8KGHQEg-VrFas6E_F3QA"
+            auth = get_backtory_token()
             headers = {
                 'Authorization': auth,
                 'X-Backtory-Connectivity-Id': connectivity_id,
@@ -398,9 +422,26 @@ class SearchClanByName(APIView):
 
     @staticmethod
     def get(request, query):
-        print(query)
         # clans = Clan.objects.filter(Q(clanName__icontains=query) | Q(clanDescription__icontains=query) )[:20]
         clans = Clan.objects.filter(clanName__icontains=query)[:20]
+        data = list()
+        for clan in clans:
+            data.append(serializer.ClanMinimalSerializer(clan).data)
+        return Response({'results': data}, status=status.HTTP_200_OK)
+
+class AdvancedSearchClan(APIView):
+
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = (JSONWebTokenAuthentication, )
+
+    @staticmethod
+    def post(request, query):
+        data = request.data
+        min_user = data['min_user']
+        max_user = data['max_user']
+        score = data['clan_score']
+        location = data['clan_location']
+        clans = Clan.objects.filter(clanScore=score).filter(clanLocation=location)[:20]
         data = list()
         for clan in clans:
             data.append(serializer.ClanMinimalSerializer(clan).data)

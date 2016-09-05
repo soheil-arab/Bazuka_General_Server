@@ -3,7 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="ce6e9ed2-4479-433f-bfc7-d84accb84277" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app1/clanViews.py" afterPath="$PROJECT_DIR$/app1/clanViews.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app1/views.py" afterPath="$PROJECT_DIR$/app1/views.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app1/urls.py" afterPath="$PROJECT_DIR$/app1/urls.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="Bazuka_General_Server.iws" />
@@ -35,11 +35,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="views.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="views.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app1/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.67746687">
-              <caret line="470" column="0" selection-start-line="470" selection-start-column="0" selection-end-line="470" selection-end-column="0" />
+            <state vertical-scroll-proportion="27.241379">
+              <caret line="400" column="25" selection-start-line="400" selection-start-column="25" selection-end-line="400" selection-end-column="25" />
               <folding>
                 <element signature="e#0#54#0" expanded="true" />
               </folding>
@@ -47,17 +47,16 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="clanViews.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="clanViews.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app1/clanViews.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-24.62963">
-              <caret line="397" column="0" selection-start-line="397" selection-start-column="0" selection-end-line="397" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.3323263">
+              <caret line="100" column="20" selection-start-line="100" selection-start-column="14" selection-end-line="100" selection-end-column="20" />
               <folding>
                 <element signature="e#23#77#0" expanded="true" />
-                <element signature="e#544#660#0" expanded="false" />
-                <element signature="e#919#1058#0" expanded="false" />
-                <element signature="e#1105#1209#0" expanded="false" />
-                <element signature="e#23972#25885#0" expanded="false" />
+                <element signature="e#1374#1490#0" expanded="false" />
+                <element signature="e#1749#1888#0" expanded="false" />
+                <element signature="e#1935#2039#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -67,7 +66,7 @@
         <entry file="file://$PROJECT_DIR$/app1/urls.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="29" column="36" selection-start-line="29" selection-start-column="36" selection-end-line="29" selection-end-column="36" />
+              <caret line="43" column="21" selection-start-line="43" selection-start-column="21" selection-end-line="43" selection-end-column="21" />
               <folding />
             </state>
           </provider>
@@ -77,7 +76,7 @@
         <entry file="file://$PROJECT_DIR$/app1/models.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="19" column="4" selection-start-line="19" selection-start-column="4" selection-end-line="19" selection-end-column="4" />
+              <caret line="282" column="16" selection-start-line="282" selection-start-column="4" selection-end-line="282" selection-end-column="16" />
               <folding>
                 <element signature="e#0#28#0" expanded="true" />
               </folding>
@@ -135,9 +134,9 @@
         <option value="$PROJECT_DIR$/app1/clanConf.py" />
         <option value="$PROJECT_DIR$/app1/serializers.py" />
         <option value="$PROJECT_DIR$/app1/models.py" />
+        <option value="$PROJECT_DIR$/app1/views.py" />
         <option value="$PROJECT_DIR$/app1/urls.py" />
         <option value="$PROJECT_DIR$/app1/clanViews.py" />
-        <option value="$PROJECT_DIR$/app1/views.py" />
       </list>
     </option>
   </component>
@@ -149,10 +148,10 @@
     <order />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="49" />
-    <option name="y" value="18" />
-    <option name="width" value="1871" />
-    <option name="height" value="1062" />
+    <option name="x" value="57" />
+    <option name="y" value="21" />
+    <option name="width" value="1309" />
+    <option name="height" value="747" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
@@ -177,7 +176,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -226,6 +224,7 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
       <pane id="Scratches" />
     </panes>
   </component>
@@ -498,15 +497,15 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="49" y="18" width="1871" height="1062" extended-state="6" />
-    <editor active="false" />
+    <frame x="57" y="21" width="1309" height="747" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info id="Terminal" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25396827" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3821656" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.22116402" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.19901586" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.21760525" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32359904" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4783069" sideWeight="0.4980864" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32955715" sideWeight="0.5030071" order="7" side_tool="true" content_ui="tabs" />
@@ -560,7 +559,7 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="9" />
+      <option name="time" value="10" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -908,14 +907,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app1/admin.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="14" column="29" selection-start-line="14" selection-start-column="29" selection-end-line="14" selection-end-column="29" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/generalServer/settings.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -929,23 +920,9 @@
     <entry file="file://$PROJECT_DIR$/app1/models.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="19" column="4" selection-start-line="19" selection-start-column="4" selection-end-line="19" selection-end-column="4" />
+          <caret line="282" column="16" selection-start-line="282" selection-start-column="4" selection-end-line="282" selection-end-column="16" />
           <folding>
             <element signature="e#0#28#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app1/clanViews.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-24.62963">
-          <caret line="397" column="0" selection-start-line="397" selection-start-column="0" selection-end-line="397" selection-end-column="0" />
-          <folding>
-            <element signature="e#23#77#0" expanded="true" />
-            <element signature="e#544#660#0" expanded="false" />
-            <element signature="e#919#1058#0" expanded="false" />
-            <element signature="e#1105#1209#0" expanded="false" />
-            <element signature="e#23972#25885#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -953,17 +930,38 @@
     <entry file="file://$PROJECT_DIR$/app1/urls.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="29" column="36" selection-start-line="29" selection-start-column="36" selection-end-line="29" selection-end-column="36" />
+          <caret line="43" column="21" selection-start-line="43" selection-start-column="21" selection-end-line="43" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app1/admin.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="14" column="29" selection-start-line="14" selection-start-column="29" selection-end-line="14" selection-end-column="29" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app1/views.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.67746687">
-          <caret line="470" column="0" selection-start-line="470" selection-start-column="0" selection-end-line="470" selection-end-column="0" />
+        <state vertical-scroll-proportion="27.241379">
+          <caret line="400" column="25" selection-start-line="400" selection-start-column="25" selection-end-line="400" selection-end-column="25" />
           <folding>
             <element signature="e#0#54#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app1/clanViews.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.3323263">
+          <caret line="100" column="20" selection-start-line="100" selection-start-column="14" selection-end-line="100" selection-end-column="20" />
+          <folding>
+            <element signature="e#23#77#0" expanded="true" />
+            <element signature="e#1374#1490#0" expanded="false" />
+            <element signature="e#1749#1888#0" expanded="false" />
+            <element signature="e#1935#2039#0" expanded="false" />
           </folding>
         </state>
       </provider>
