@@ -34,7 +34,9 @@ def get_backtory_token():
     }
 
     if backtory_token_expire + 1209500 > current_time:
+        print('login needs')
         r1 = requests.post(url, headers=headers)
+        print(r1.status_code)
         if r1.status_code >= 300 or r1.status_code < 200:
             print("failed to login as master in backtory :D")
         else:
