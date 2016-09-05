@@ -406,6 +406,8 @@ class ClanList(APIView):
             if r1.status_code != 201:
                 print('group not registered on backtory')
                 #TODO: log and do it again :D
+            print("status code: " + str(r1.status_code))
+            print("backtory text: "+ r1.text)
             group_id = r1.json()['groupId']
             clan_obj.backtory_group_id = group_id
             clan_obj.backtory_group_owner = user_id
