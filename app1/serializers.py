@@ -73,11 +73,19 @@ class ClanMinimalSerializer(serializers.ModelSerializer):
 
 class ClanProfileSerializer(serializers.ModelSerializer):
     users = ClanUserSerializer(many=True, required=False, read_only=True)
-
+    donations_list = serializers.SerializerMethodField()
+    
+    def get_donations_list(self, clan):
+        donations = clan.donations
+        x = list()
+        for obj in donations:
+            if obj.requiredCardCount  != obj.donatedCardCount :
+                x.append(obj)
+        return x
     class Meta:
         model = Clan
         fields = ('idClan', 'clanName', 'clanDescription', 'clanLocation', 'clanType',
-                  'clanMinimumTrophies', 'clanScore', 'users', 'clanBadge')
+                  'clanMinimumTrophies', 'clanScore', 'users', 'clanBadge', 'donations_list')
 
 class ClanSerializer(serializers.ModelSerializer):
     users = ClanUserSerializer(many=True, required=False, read_only=True)
