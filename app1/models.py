@@ -360,7 +360,7 @@ class Donation(models.Model):
     donators = HStoreField()
     startTime = models.IntegerField(default=current_time)
     cardType = models.ForeignKey(CardType, null=True, blank=True)
-    clan = models.ForeignKey(Clan, null=True, blank=True)
+    clan = models.ForeignKey(Clan, related_name='donations', null=True, blank=True)
 
     def __str__(self):
         return 'donate_{0}@{1}'.format(self.id, self.owner.idUser)
